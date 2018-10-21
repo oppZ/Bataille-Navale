@@ -1,5 +1,6 @@
 import os
 import time
+import random
 
 NombreMaxLignes = 26
 NombreMinLignes = 5
@@ -119,15 +120,14 @@ def verificationEmplacements(direction,emplacement1,emplacement2,Joueur):
                 return False
     #On essaye d'ajouter le bateau case par case
     def changement(direction,emplacement1,emplacement2,Joueur):
-        var = cases -1
-        global tout
+        var = cases - 1
         tout=emplacement1+" "+emplacement2+";"
         emplacement1 = int(emplacement1)
         emplacement2 = int(emplacement2)
         #Test si les cases vers le North sont libres et existantes (vers le haut)
         if direction == "N":
             while var != 0:
-                var = var -1
+                var = var - 1
                 emplacement2 = emplacement2 - 1
                 ValeurTableau = existe(emplacement1,emplacement2,Joueur)
                 if ValeurTableau == -1 or emplacement2 < 0 or caseBateau(emplacement1,emplacement2,Joueur):
@@ -138,7 +138,7 @@ def verificationEmplacements(direction,emplacement1,emplacement2,Joueur):
         #Test si les cases vers le West sont libres et existantes (vers la droite)
         elif direction == "W":
             while var != 0:
-                var = var -1
+                var = var - 1
                 emplacement1 = emplacement1 - 1
                 ValeurTableau = existe(emplacement1,emplacement2,Joueur)
                 if ValeurTableau == -1 or emplacement1 < 0 or caseBateau(emplacement1,emplacement2,Joueur):
@@ -149,7 +149,7 @@ def verificationEmplacements(direction,emplacement1,emplacement2,Joueur):
         #Test si les cases vers le Est sont libres et existantes (vers la gauche)
         elif direction == "E":
             while var != 0:
-                var = var -1
+                var = var - 1
                 emplacement1 = emplacement1 + 1
                 ValeurTableau = existe(emplacement1,emplacement2,Joueur)
                 if ValeurTableau == -1 or caseBateau(emplacement1,emplacement2,Joueur):
@@ -160,7 +160,7 @@ def verificationEmplacements(direction,emplacement1,emplacement2,Joueur):
         #Test si les cases vers le South sont libres et existantes (vers le bas)
         elif direction == "S":
             while var != 0:
-                var = var -1
+                var = var - 1
                 emplacement2 = emplacement2 + 1
                 ValeurTableau = existe(emplacement1,emplacement2,Joueur)
                 if ValeurTableau == -1 or caseBateau(emplacement1,emplacement2,Joueur):
@@ -168,10 +168,11 @@ def verificationEmplacements(direction,emplacement1,emplacement2,Joueur):
                 else:
                     tout = tout + str(emplacement1) + " " + str(emplacement2)+";"
             return tout
-    if Joueur == True:
+    def recupereCoordonneesBateau(direction,emplacement1,emplacement2,Joueur):
+        #On récupčre toutes les coordonnées du bateau
         complets = changement(direction,emplacement1,emplacement2,Joueur)
-        global BateauxJoueur
-        bateaux=""
+        global BateauxJoueur, BateauxOrdinateur
+        bateaux = ""
         if complets == -1:
             return complets
         else:
@@ -179,28 +180,30 @@ def verificationEmplacements(direction,emplacement1,emplacement2,Joueur):
             coor = complets.split(";")
             for i in range(len(coor)-1):
                 for t in Coordonnes:
-                    if Coordonnes[t]==coor[i]:
+                    if Coordonnes[t] == coor[i]:
                         bateaux = bateaux + str(t) + " "
-            BateauxJoueur.append(bateaux)
-            print(BateauxJoueur)
-            os.system("pause")
+            if Joueur==True:
+                BateauxJoueur.append(bateaux)
+            else:
+                BateauxOrdinateur.append(bateaux)
             return 0
-                
+    return recupereCoordonneesBateau(direction,emplacement1,emplacement2,Joueur)                
 
 def ecriture(joueur,loop):
     global JeuJoueur,JeuOrdinateur
     if joueur == True:
-        resultat=-1
-        #Tant qu'il n'y a pas d'erreurs
-        while resultat == -1:
-            #Demande l'emplacement initial du bateau a ajouter
-            emplacement1,emplacement2 = traduction(True,"")
-            if JeuJoueur[int(emplacement1)][int(emplacement2)] == 1:
-                print("Sur cet emplacement il y a déjŕ un bateau, vous ne pouvez pas placer un bateau ici. Veuillez réessayer...")
-                return -1
+        #Demande l'emplacement initial du bateau a ajouter
+        emplacement1,emplacement2 = traduction(True,"")
+        if JeuJoueur[int(emplacement1)][int(emplacement2)] == 1:
+            print("Sur cet emplacement il y a déjŕ un bateau, vous ne pouvez pas placer un bateau ici. Veuillez réessayer...")
+            return -1
+        else:
+            choix = ""
+            #Si le bateau fait une case, on ne demande pas la direction
+            if cases == 1:
+                choix == "N"
             else:
                 #Demande la direction du positionnement du bateau
-                choix =""
                 print("Dans quelle direction voulez-vous placer votre bateau?")
                 print("  N\nW   E\n  S")
                 while choix != "N" and choix != "W" and choix != "E" and choix != "S":
@@ -208,10 +211,10 @@ def ecriture(joueur,loop):
                     if choix != "N" and choix != "W" and choix != "E" and choix != "S":
                         print("Direction non correcte. Il est attendu une seule lettre (N/W/E/S)")
                         return -1
-                resultat = verificationEmplacements(choix,emplacement1,emplacement2,True)
-                if resultat == -1:
-                    print("Impossible de placer le bateau de",cases,"cases en direction",choix,". Veuillez trouvez un autre endroit ou une autre direction pour votre bateau...\n")
-                    return -1
+            resultat = verificationEmplacements(choix,emplacement1,emplacement2,True)
+            if resultat == -1:
+                print("Impossible de placer le bateau de",cases,"cases en direction",choix,". Veuillez trouvez un autre endroit ou une autre direction pour votre bateau...\n")
+                return -1
         cas = BateauxJoueur[loop]
         valeurs = cas.split(" ")
         #Conversion puis placement des bateaux dans le tableau du jeu du joueur
@@ -220,9 +223,35 @@ def ecriture(joueur,loop):
             coor1,coor2 = traduction(False,val)
             JeuJoueur[int(coor1)][int(coor2)] = 1
         return 0
+    else:
+        x = random.randrange(1, Lignes + 1)
+        y = random.randrange(1, Colones + 1)
+        chou = random.randrange (1,4+1)
+        coor = str(x)+" "+str(y)
+        if chou==1:
+            choix="N"
+        elif chou==2:
+            choix="W"
+        elif chou==3:
+            choix="E"
+        elif chou== 4:
+            choix="S"
+        resultat = verificationEmplacements(choix,str(x),str(y),False)
+        if resultat == -1:
+            return -1
+        else:
+            cas = BateauxOrdinateur[loop]
+            valeurs = cas.split(" ")
+            #Conversion puis placement des bateaux dans le tableau du jeu du joueur
+            for i in range(len(valeurs)-1):
+                val = valeurs[i]
+                coor1,coor2 = traduction(False,val)
+                JeuOrdinateur[int(coor1)][int(coor2)] = 1
+            return 0
+        
 
 def preparations():
-    global JeuJoueur,JeuOrdinateur,Lignes,Colones,Coordonnes,cases,loop,Constente
+    global JeuJoueur,JeuOrdinateur,Lignes,Colones,Coordonnes,cases,loop
     JeuJoueur=[]
     JeuOrdinateur=[]
     BateauxJoueur = []
@@ -256,11 +285,21 @@ def preparations():
             loop = loop + 1
             Constente = Constente - 1
         cases = cases+1
-            
+    #Insertion des bateaux de l'ordinateur sur son jeu
+    cases=1
+    loop=0
+    for r in TailleBateaux:
+        Constente = TailleBateaux[r]
+        while Constente!=0:
+            test=-1
+            while test == -1:
+                test = ecriture(False,loop)
+            loop = loop + 1
+            Constente = Constente - 1
+        cases = cases+1
         
 
 def afficherJeu(preparation):
-    #global JeuJoueur,JeuOrdinateur
     os.system("cls")
     print("Joueur : \n")
     print("   ",sep='',end='')
@@ -300,7 +339,7 @@ def afficherJeu(preparation):
                 print("  ",sep='',end='')
                 if JeuOrdinateur[h][t]==0:
                     print(" ",sep='',end='')
-                elif JeuOrdinateur[h][t]==1:
+                elif JeuOrdinateur[h][t]==1: #Le temps du développement
                     print("B",sep='',end='')
                 elif JeuOrdinateur[h][t]==2:
                     print("X",sep='',end='')
