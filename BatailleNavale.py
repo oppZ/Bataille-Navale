@@ -1,90 +1,103 @@
 from tkinter import *
 from random import *
+from copy import *
 
-LINES = 10 #Taille de la grille (verticalement)
-COLUMNS = 10 #Taille de la grille (horizontalement)
+NUMBER_DEFAULT_LINES = 10
+NUMBER_MIN_LINES = 5
+NUMBER_MAX_LINES = 26
+NUMBER_DEFAULT_COLUMNS = 10
+NUMBER_MIN_COLUMNS = 5
+NUMBER_MAX_COLUMNS = 26
+LINES = 0 #Taille de la grille (verticalement)
+COLUMNS = 0 #Taille de la grille (horizontalement)
+ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" #Alphabet
+NUMBER_DEFAULT_SHIPS_PER_LENGTH = {1:0, 2:1, 3:2, 4:1, 5:1} 
+NUMBER_SHIPS_PER_LENGTH = {}
 
-CONFIG = [1,1,2,1,1] #Configuration (par taille)
+player1Tab = []
+computerTab, player2Tab = [], []
 
-plTab = []
-comTab, pl2Tab = [], []
-subTab = []
-
-def rand_binary():
-    return randint(0, 1) == 0
-
-def verify(comTab):
-    for x in range(0, COLUMNS):
-        for y in range(0, LINES):
-            i = subTab[x][y]
-            if (not (i == 0) and comTab[x][y] != 0):
-                return False
-    return True
+#Fonction qui demande la longueur du bateau et l'id pour pouvoir le placer sur le terrain de jeu de l'ordinateur
+def computerPlacement(shipLength,computerShipId):
+    x = randint(0, COLUMNS-1)
+    y = randint(0, LINES-1)
+    global computerTab
+    ship = []
+    #On regarde si la case d'origine est ocupé ou non. Si oui, on sort de la fonction
+    if computerTab[x][y] != 0:
+        return -1
+    else:
+        ship.append(str(x)+" "+str(y)) 
+    direction = randint(1, 4)
+    if shipLength -1 != 0:
+        for case in range(shipLength -1):
+            #UP
+            if direction == 1 and y > 0:
+                y = y - 1
+                ship.append(str(x)+" "+str(y))
+            #DOWN
+            elif direction == 2 and y < LINES - 1:
+                y = y + 1
+                ship.append(str(x)+" "+str(y))
+            #LEFT
+            elif direction == 3 and x > 0:
+                x = x - 1
+                ship.append(str(x)+" "+str(y))
+            #RIGHT
+            elif direction == 4 and x < COLUMNS -1:
+                x = x + 1
+                ship.append(str(x)+" "+str(y))
+            #Si on sort des limites du tableau de jeu, alors on sort de cette fonction en retournant erreur
+            else:
+                return -1
+            #Si cettte case est occupé, alors on sort de cette fonction en retournant erreur
+            if computerTab[x][y] != 0:
+                return -1
+    #Si on arrive ici, alors toutes les positions sont libres et existantes
+    print(ship,computerShipId)
+    for case in range(len(ship)):
+        xy = ship[case]
+        tab = xy.split(" ")
+        computerTab[int(tab[0])][int(tab[1])] = computerShipId
+    return 0
 
 def new_game(isMulti):
     print("Création d'une nouvelle partie...")
+    global LINES, COLUMNS, NUMBER_SHIPS_PER_LENGTH
+    #Si les lignes, colones et le nombre de bateaux n'ont pas été changés dans les paramčtres, alors on récupčre les valeurs par défault
+    if LINES == 0:
+        LINES = deepcopy(NUMBER_DEFAULT_LINES)
+    if COLUMNS == 0:
+        COLUMNS = deepcopy(NUMBER_DEFAULT_COLUMNS)
+    if len(NUMBER_SHIPS_PER_LENGTH) == 0:
+        NUMBER_SHIPS_PER_LENGTH = deepcopy(NUMBER_DEFAULT_SHIPS_PER_LENGTH)
 
-    if not(isMulti):
+    #Si on veut jouer contre l'ordinateur
+    if isMulti == False:
         print("[1/3] Initialisation de la grille de l'ordinateur")
-        global compTab
-        comTab = [0]*LINES
+        global computerTab
+        #Création du tableau de l'ordinateur
+        computerTab = [0]*LINES
         for _ in range(LINES):
-            comTab[_] = [0]*COLUMNS
+            computerTab[_] = [0]*COLUMNS
 
-        for i in range(2, 7):
-
-            for k in range(0, CONFIG[i-2]):
-                global subTab
-                validated = False
-                
-                while not validated:
-                    subTab = [0]*LINES
-                    for _ in range(LINES):
-                        subTab[_] = [0]*COLUMNS
-                    
-                    if rand_binary():
-                        #VERTICAL
-                        x = randint(0, LINES-1)
-                        if rand_binary():
-                            #HAUT
-                            y = randint(i, COLUMNS-1)
-                            for _ in range(y, (y-i), -1):
-                                subTab[x][_] = i
-                        else:
-                            #BAS
-                            y = randint(0, COLUMNS-i-1)
-                            for _ in range(y, (y+i)):
-                                subTab[x][_] = i
-                            
-                    else:
-                        #HORINZONTAL
-                        y = randint(0, COLUMNS-1)
-                        if rand_binary():
-                            #DROITE
-                            x = randint(0, LINES-i-1)
-                            for _ in range(x, (x+i)):
-                                subTab[x][_] = i
-                        else:
-                            #GAUCHE
-                            x = randint(k, LINES-1)
-                            for _ in range(x, (x-i), -1):
-                                subTab[x][_] = i
-
-                    validated = verify(comTab)
-
-                for x in range(COLUMNS):
-                    for y in range(LINES):
-                        z = subTab[x][y]
-                        if z != 0:
-                            comTab[x][y] = z
-                        
+        computerShipId = 1
+        #Ajout de bateaux sur le terrain de l'ordinateur
+        for shipLength in NUMBER_SHIPS_PER_LENGTH:
+            result = -1
+            #Tant qu'on ne ressoit le succčs de la fonction computerPlacement(), continuer
+            while result == -1 and NUMBER_SHIPS_PER_LENGTH[shipLength] != 0:
+                for ship in range(NUMBER_SHIPS_PER_LENGTH[shipLength]):
+                    result = computerPlacement(shipLength, computerShipId)
+                    if result != -1:
+                        computerShipId = computerShipId + 1
+        
         print("[1/3] TERMINÉ !")
         for i in range(10):
             for k in range(10):
-                print(comTab[i][k], end="")
-            print("\n")
+                print(computerTab[i][k], end="")
+            print("")
                     
 def continue_game():
     #TODO
