@@ -22,7 +22,9 @@ player1Tab = []
 computerTab, player2Tab = [], []
 
 #Fonction qui demande la longueur du bateau et l'id pour pouvoir le placer sur le terrain de jeu de l'ordinateur
+
 def computerPlacement(shipLength, shipId):
+
     x = randint(0, COLUMNS-1)
     y = randint(0, LINES-1)
     global computerTab
@@ -84,7 +86,6 @@ def new_game(isMulti):
         computerTab = [0]*LINES
         for _ in range(LINES):
             computerTab[_] = [0]*COLUMNS
-
         shipId = 1
         #Ajout de bateaux sur le terrain de l'ordinateur
         for shipLength in NUMBER_SHIPS_PER_LENGTH:
