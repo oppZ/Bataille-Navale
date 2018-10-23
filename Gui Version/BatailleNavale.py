@@ -57,6 +57,7 @@ def computerPlacement(shipLength, shipId):
         if computerTab[x][y] != 0:
             return -1
     #Si on arrive ici, alors toutes les positions sont libres et elles existent
+    print(ship,shipId)
     for case in range(len(ship)):
         xy = ship[case]
         tab = xy.split(" ")
@@ -85,21 +86,21 @@ def new_game(isMulti):
             computerTab[_] = [0]*COLUMNS
 
         shipId = 1
-        
         #Ajout de bateaux sur le terrain de l'ordinateur
         for shipLength in NUMBER_SHIPS_PER_LENGTH:
-            result = -1
-            #Tant qu'on ne ressoit pas le succčs de la fonction computerPlacement(), continuer
-            while result == -1 and NUMBER_SHIPS_PER_LENGTH[shipLength] != 0:
-                for ship in range(NUMBER_SHIPS_PER_LENGTH[shipLength]):
-                    result = computerPlacement(shipLength, shipId)
+            #Pour chaque bateau d'un taille NUMBER_SHIPS_PER_LENGTH[shipLength]
+            for ship in range(NUMBER_SHIPS_PER_LENGTH[shipLength]):
+                result = -1
+                #Tant qu'on ne ressoit pas le succčs de la fonction computerPlacement(), continuer
+                while result == -1 and NUMBER_SHIPS_PER_LENGTH[shipLength] != 0:                
+                    result = int(computerPlacement(shipLength, shipId))
                     if result != -1:
                         shipId = shipId + 1
         
         print("[1/3] TERMINÉ !")
-        for i in range(10):
-            for k in range(10):
-                print(computerTab[i][k], end="")
+        for y in range(LINES):
+            for x in range(COLUMNS):
+                print(computerTab[x][y], end="")
             print("")
                     
 def continue_game():
