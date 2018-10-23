@@ -5,11 +5,14 @@ from copy import *
 NUMBER_DEFAULT_LINES = 10
 NUMBER_MIN_LINES = 5
 NUMBER_MAX_LINES = 26
+
 NUMBER_DEFAULT_COLUMNS = 10
 NUMBER_MIN_COLUMNS = 5
 NUMBER_MAX_COLUMNS = 26
+
 LINES = 0 #Taille de la grille (verticalement)
 COLUMNS = 0 #Taille de la grille (horizontalement)
+
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 NUMBER_DEFAULT_SHIPS_PER_LENGTH = {1:0, 2:1, 3:2, 4:1, 5:1} 
@@ -19,7 +22,9 @@ player1Tab = []
 computerTab, player2Tab = [], []
 
 #Fonction qui demande la longueur du bateau et l'id pour pouvoir le placer sur le terrain de jeu de l'ordinateur
-def computerPlacement(shipLength,computerShipId):
+
+def computerPlacement(shipLength, shipId):
+
     x = randint(0, COLUMNS-1)
     y = randint(0, LINES-1)
     global computerTab
@@ -30,36 +35,35 @@ def computerPlacement(shipLength,computerShipId):
     else:
         ship.append(str(x)+" "+str(y)) 
     direction = randint(1, 4)
-    if shipLength -1 != 0:
-        for case in range(shipLength -1):
-            #UP
-            if direction == 1 and y > 0:
-                y = y - 1
-                ship.append(str(x)+" "+str(y))
-            #DOWN
-            elif direction == 2 and y < LINES - 1:
-                y = y + 1
-                ship.append(str(x)+" "+str(y))
-            #LEFT
-            elif direction == 3 and x > 0:
-                x = x - 1
-                ship.append(str(x)+" "+str(y))
-            #RIGHT
-            elif direction == 4 and x < COLUMNS -1:
-                x = x + 1
-                ship.append(str(x)+" "+str(y))
-            #Si on sort des limites du tableau de jeu, alors on sort de cette fonction en retournant erreur
-            else:
-                return -1
-            #Si cettte case est occupé, alors on sort de cette fonction en retournant erreur
-            if computerTab[x][y] != 0:
-                return -1
-    #Si on arrive ici, alors toutes les positions sont libres et existantes
-    print(ship,computerShipId)
+    for case in range(shipLength -1):
+        #UP
+        if direction == 1 and y > 0:
+            y = y - 1
+            ship.append(str(x)+" "+str(y))
+        #DOWN
+        elif direction == 2 and y < LINES - 1:
+            y = y + 1
+            ship.append(str(x)+" "+str(y))
+        #LEFT
+        elif direction == 3 and x > 0:
+            x = x - 1
+            ship.append(str(x)+" "+str(y))
+        #RIGHT
+        elif direction == 4 and x < COLUMNS -1:
+            x = x + 1
+            ship.append(str(x)+" "+str(y))
+        #Si on sort des limites du tableau de jeu, alors on sort de cette fonction en retournant erreur
+        else:
+            return -1
+        #Si cettte case est occupé, alors on sort de cette fonction en retournant erreur
+        if computerTab[x][y] != 0:
+            return -1
+    #Si on arrive ici, alors toutes les positions sont libres et elles existent
+    print(ship,shipId)
     for case in range(len(ship)):
         xy = ship[case]
         tab = xy.split(" ")
-        computerTab[int(tab[0])][int(tab[1])] = computerShipId
+        computerTab[int(tab[0])][int(tab[1])] = shipId
     return 0
 
 def new_game(isMulti):
@@ -74,29 +78,30 @@ def new_game(isMulti):
         NUMBER_SHIPS_PER_LENGTH = deepcopy(NUMBER_DEFAULT_SHIPS_PER_LENGTH)
 
     #Si on veut jouer contre l'ordinateur
-    if isMulti == False:
+    if not(isMulti):
         print("[1/3] Initialisation de la grille de l'ordinateur")
+
         global computerTab
         #Création du tableau de l'ordinateur
         computerTab = [0]*LINES
         for _ in range(LINES):
             computerTab[_] = [0]*COLUMNS
-
-        computerShipId = 1
+        shipId = 1
         #Ajout de bateaux sur le terrain de l'ordinateur
         for shipLength in NUMBER_SHIPS_PER_LENGTH:
-            result = -1
-            #Tant qu'on ne ressoit le succčs de la fonction computerPlacement(), continuer
-            while result == -1 and NUMBER_SHIPS_PER_LENGTH[shipLength] != 0:
-                for ship in range(NUMBER_SHIPS_PER_LENGTH[shipLength]):
-                    result = computerPlacement(shipLength, computerShipId)
+            #Pour chaque bateau d'un taille NUMBER_SHIPS_PER_LENGTH[shipLength]
+            for ship in range(NUMBER_SHIPS_PER_LENGTH[shipLength]):
+                result = -1
+                #Tant qu'on ne ressoit pas le succčs de la fonction computerPlacement(), continuer
+                while result == -1 and NUMBER_SHIPS_PER_LENGTH[shipLength] != 0:                
+                    result = int(computerPlacement(shipLength, shipId))
                     if result != -1:
-                        computerShipId = computerShipId + 1
+                        shipId = shipId + 1
         
         print("[1/3] TERMINÉ !")
-        for i in range(10):
-            for k in range(10):
-                print(computerTab[i][k], end="")
+        for y in range(LINES):
+            for x in range(COLUMNS):
+                print(computerTab[x][y], end="")
             print("")
                     
 def continue_game():
