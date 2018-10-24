@@ -181,14 +181,14 @@ def parameters():
     para.geometry("500x200")
     
     #Création d'élčments
-	bienvenue = Label(para, text='Paramètres du jeu :\n')
+    bienvenue = Label(para, text='Paramètres du jeu\n')
     colones = Label(para, text='Nombre de colonnes :')
     lignes = Label(para, text='Nombre de lignes :')
     colonesE = Spinbox(para, from_=NUMBER_MIN_COLUMNS, to=NUMBER_MAX_COLUMNS)
     lignesE = Spinbox(para, from_=NUMBER_MIN_LINES, to=NUMBER_MAX_LINES)
 
     #Agrandissement du texte
-	bienvenue.configure(font = "-size 12")
+    bienvenue.configure(font = "-size 12")
     colones.configure(font = "-size 11")
     lignes.configure(font = "-size 11")
 
