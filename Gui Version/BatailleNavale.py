@@ -209,7 +209,7 @@ def parameters():
     lignes.configure(font = "-size 11")
 
     #Répartition des différents élements
-    bienvenue.grid(row = 0, column = 0)
+    bienvenue.grid(row = 0, column = 0, padx = 100,  sticky = W)
     colones.grid(row = 2, column = 0, sticky = W)
     lignes.grid(row = 3, column = 0, sticky = W)
     colonesE.grid(row = 2, column = 0, padx = 220)
