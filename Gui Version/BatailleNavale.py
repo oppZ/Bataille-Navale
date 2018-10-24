@@ -177,33 +177,28 @@ def continue_game():
 
 def parameters():
     para = Tk()
-    para.title("Parametres")
+    para.title("Paramètres")
     para.geometry("500x200")
-
     
     #Création d'élčments
-    bienvenue = Label(para, text='Changer les parametres du jeu\n')
-    colones = Label(para, text='Le nombre de colones du jeu')
-    lignes = Label(para, text='Le nombre de lignes du jeu')
+    colones = Label(para, text='Nombre de colonnes :')
+    lignes = Label(para, text='Nombre de lignes :')
     colonesE = Spinbox(para, from_=NUMBER_MIN_COLUMNS, to=NUMBER_MAX_COLUMNS)
     lignesE = Spinbox(para, from_=NUMBER_MIN_LINES, to=NUMBER_MAX_LINES)
 
-    #Agrandissement du text
-    bienvenue.configure(font = "-size 12")
+    #Agrandissement du texte
     colones.configure(font = "-size 11")
     lignes.configure(font = "-size 11")
 
     #Répartition des différents élements
-    bienvenue.grid(row = 0, column = 0)
     colones.grid(row = 2, column = 0, sticky = W)
     lignes.grid(row = 3, column = 0, sticky = W)
     colonesE.grid(row = 2, column = 0, padx = 220)
     lignesE.grid(row = 3, column = 0, padx = 220)
+
+    #TODO : Bouton de validation / fermeture fenêtre
     
     para.mainloop()
-    
-    
-    print()
 
 def informations():
     #TODO
