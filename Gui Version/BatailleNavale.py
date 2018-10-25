@@ -1,4 +1,6 @@
 from tkinter import *
+from tkinter import ttk
+from tkinter import messagebox
 from random import *
 from copy import *
 
@@ -30,7 +32,7 @@ instance :
   1 : Joueur 1
   2 : Joueur 2
 '''
-def placement(shipLength, shipId, instance):
+def placement(shipLength, shipId, instance, player1):
 
     ship = []
     tab = []
@@ -45,7 +47,7 @@ def placement(shipLength, shipId, instance):
         
     else:
         #Joueur
-        if instance == 1:
+        if player1 == True:
             tab = player1Tab
             print("Le joueur 1 remplit sa grille")
         else:
@@ -86,6 +88,7 @@ def placement(shipLength, shipId, instance):
         if tab[x][y] != 0:
             return -1
 
+    print(ship, shipLength, shipId)
     #Toutes les positions sont OK
     for case in range(len(ship)):
         t = ship[case].split(" ")
@@ -108,7 +111,7 @@ def init_grid(instance):
             result = -1
             
             while result == -1 and NUMBER_SHIPS_PER_LENGTH[shipLength] != 0:                
-                result = placement(shipLength, shipId, instance)
+                result = placement(shipLength, shipId, instance, False)
                 
                 if result != -1:
                     shipId = shipId + 1
@@ -155,8 +158,8 @@ def new_game(isSolo):
             computerTab[_] = [0]*COLUMNS
         init_grid(0)
 
-        for x in range(9):
-            for y in range(9):
+        for y in range(LINES):
+            for x in range(COLUMNS):
                 print(computerTab[x][y], end="")
             print()
             
@@ -175,29 +178,67 @@ def continue_game():
     #TODO
     print()
 
+def changeParametres():
+    global LINES, COLUMNS
+    LINES = lignesE.get()
+    COLUMNS = colonesE.get()
+
+def confir():
+    print()
+
 def parameters():
     para = Tk()
     para.title("Paramètres")
-    para.geometry("500x200")
-    
+    para.geometry("400x380")
+
+    global colonesE,lignesE
+
     #Création d'élčments
     bienvenue = Label(para, text='Paramètres du jeu\n')
     colones = Label(para, text='Nombre de colonnes :')
     lignes = Label(para, text='Nombre de lignes :')
-    colonesE = Spinbox(para, from_=NUMBER_MIN_COLUMNS, to=NUMBER_MAX_COLUMNS)
-    lignesE = Spinbox(para, from_=NUMBER_MIN_LINES, to=NUMBER_MAX_LINES)
+    colonesE = Spinbox(para, from_=NUMBER_MIN_COLUMNS, to=NUMBER_MAX_COLUMNS, width=5)
+    lignesE = Spinbox(para, from_=NUMBER_MIN_LINES, to=NUMBER_MAX_LINES, width=5)
+    #width, height
 
+    taille = Label(para, text='\nLe nombre de bateaux par taille\n')
+    case1 = Label(para, text='1 case(s) :')
+    case2 = Label(para, text='2 case(s) :')
+    case3 = Label(para, text='3 case(s) :')
+    case4 = Label(para, text='4 case(s) :')
+    case5 = Label(para, text='5 case(s) :')
+    case6 = Label(para, text='6 case(s) :')
+    appliquer = ttk.Button(para, text= 'Appliquer', command = changeParametres)
+    confirmer = ttk.Button(para, text = 'Confirmer', command = confir)
+    
     #Agrandissement du texte
     bienvenue.configure(font = "-size 12")
     colones.configure(font = "-size 11")
     lignes.configure(font = "-size 11")
 
+    taille.configure(font = "-size 11")
+    case1.configure(font = "-size 11")
+    case2.configure(font = "-size 11")
+    case3.configure(font = "-size 11")
+    case4.configure(font = "-size 11")
+    case5.configure(font = "-size 11")
+    case6.configure(font = "-size 11")
+    
     #Répartition des différents élements
-    bienvenue.grid(row = 0, column = 0, padx = 100,  sticky = W)
+    bienvenue.grid(row = 0, column = 0, padx = 120,  sticky = W)
     colones.grid(row = 2, column = 0, sticky = W)
     lignes.grid(row = 3, column = 0, sticky = W)
-    colonesE.grid(row = 2, column = 0, padx = 220)
-    lignesE.grid(row = 3, column = 0, padx = 220)
+    colonesE.grid(row = 2, column = 0, padx = 150)
+    lignesE.grid(row = 3, column = 0, padx = 150)
+
+    taille.grid(row = 5, column = 0, sticky = W)
+    case1.grid(row = 6, column = 0, sticky = W)
+    case2.grid(row = 7, column = 0, sticky = W)
+    case3.grid(row = 8, column = 0, sticky = W)
+    case4.grid(row = 9, column = 0, sticky = W)
+    case5.grid(row = 10, column = 0, sticky = W)
+    case6.grid(row = 11, column = 0, sticky = W)
+    appliquer.grid(row = 12, column = 0, sticky = N)
 
     #TODO : Bouton de validation / fermeture fenêtre
     
@@ -207,7 +248,12 @@ def informations():
     #TODO
     print()
 
+def callback():
+    if messagebox.askokcancel("Quit", "Voulez-vous vraiment quitter?"):
+        window.destroy()
+
 def main_menu():
+    global window
     window = Tk()
     window.title("Bataille Navale")
 
@@ -230,6 +276,8 @@ def main_menu():
     menu2.add_command(label="Quitter", command=window.quit)
 
     window.config(menu=menu)
+
+    window.protocol("WM_DELETE_WINDOW", callback)
 
     window.mainloop()
 
