@@ -25,6 +25,7 @@ MODE = 0 #0 pour SOLO / 1 pour MULTI
 player1Tab = []
 computerTab, player2Tab = [], []
 
+
 def draw_grid(instance):
     tab = []
 
@@ -43,25 +44,30 @@ def draw_grid(instance):
         for x in range(COLUMNS):
             divC = 800/COLUMNS
             divL = 800/LINES
-            X = int(divC*x)
-            Y = int(divL*y)
-
+            X = divC*x
+            Y = divL*y
             lines.append(drawing.create_line(X, 0, X, 800, width=3))
             lines.append(drawing.create_line(0, Y, 800, Y, width=3))
 
-            id = tab[x][y]
-            
-            if id != 0:
-                predX = X-divC
-                predY = Y-divL
-                    
-                if id == -1:
-                    #Bateau touché
-                    drawing.create_line(predX, predY, X, Y)
-                    drawing.create_line(predX, Y, X, predY)
-                else:
-                    #Bateau non touché   
-                    drawing.create_oval(predX, predY, X, Y)                
+                      
+            predX = X-divC
+            predY = Y-divL
+            divC = divC/4
+            divL = divL/4
+
+            length = 0
+            if length == 1:
+                #Cercle
+                drawing.create_oval(predX+divC, predY+divL, predX+divC*3, predY+divL*3)
+            elif length == 2:
+                print()
+            elif length == 3:
+                print()
+            elif length == 4:
+                print()
+            elif length == 5:
+                print()  
+                
 
 '''
 Placement d'un bateau
@@ -91,7 +97,6 @@ def placement(shipLength, shipId, instance):
         else:
             tab = player2Tab
             print("Le joueur 2 remplit sa grille")
-
         draw_grid(instance)
 
         #TODO : Choisir ses coordonnées
@@ -125,12 +130,17 @@ def placement(shipLength, shipId, instance):
             return -1
         
         #Case occupée => on sort de la fonction
-        if tab[x][y] != 0:
+        try:
+            if tab[x][y] != 0:
+                return -1
+        except:
             return -1
 
+    print(ship, shipId, shipLength)
     #Toutes les positions sont OK
     for case in range(len(ship)):
         t = ship[case].split(" ")
+        print(t, COLUMNS,LINES, direction)
         tab[int(t[0])][int(t[1])] = shipId
     return 0
                         
@@ -184,7 +194,7 @@ def new_game(isSolo):
     player1Tab = [0]*LINES
     for _ in range(LINES):
         player1Tab[_] = [0]*COLUMNS
-    init_grid(1)
+    #init_grid(1)
 
     if MODE == 0:
         #====Solo====#
@@ -216,8 +226,8 @@ def continue_game():
 
 def changeParametres():
     global LINES, COLUMNS
-    LINES = lignesE.get()
-    COLUMNS = colonesE.get()
+    LINES = int(lignesE.get())
+    COLUMNS = int(colonesE.get())
 
 def confir():
     print()
@@ -295,7 +305,7 @@ def main_menu():
     global window
     window = Tk()
     window.title("Bataille Navale")
-    window.geometry("1280x800")
+    window.geometry("1280x800+200+100")
 
     window.bind( "<Button-1>", xyPos )
 
