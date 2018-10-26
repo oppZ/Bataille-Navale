@@ -48,17 +48,19 @@ def draw_grid(instance):
             lines.append(drawing.create_line(X, 0, X, 800, width=3))
             lines.append(drawing.create_line(0, Y, 800, Y, width=3))
 
-            case = tab[X][Y]
+            #case = tab[X][Y]
             #Je veux get la taille de cette case
                       
             predX = X-divC
             predY = Y-divL
             divC = divC/4
             divL = divL/4
-              
+
+            length = 0
             if length == 1:
                 #Cercle
-                drawing.create_oval(predX+divC, predY+divL, predX+divC*3, predY+divL*3)
+                print()
+                #drawing.create_oval(predX+divC, predY+divL, predX+divC*3, predY+divL*3)
             elif length == 2:
                 print()
             elif length == 3:
@@ -293,11 +295,17 @@ def callback():
     if messagebox.askokcancel("Quit", "Voulez-vous vraiment quitter?"):
         window.destroy()
 
+def xyPos(event):
+    print(event.x,event.y)
+
 def main_menu():
     global window
     window = Tk()
     window.title("Bataille Navale")
     window.geometry("1280x800")
+
+    window.bind( "<Button-1>", xyPos )
+
 
     menu = Menu(window)
 
