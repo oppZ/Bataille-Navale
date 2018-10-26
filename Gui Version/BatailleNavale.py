@@ -51,8 +51,8 @@ def draw_grid(instance):
             lines.append(drawing.create_line(0, Y, 800, Y, width=3))
 
                       
-            id = tab[x][y] 
-            
+            #id = tab[x][y] 
+            id = 0
             if id != 0:
                 predX = X-divC
                 predY = Y-divL
@@ -61,7 +61,7 @@ def draw_grid(instance):
                     #Bateau touché
                     drawing.create_line(predX,predY, X, Y)
                     drawing.create_line(predX, Y, X, predY)
-                 else:
+                else:
                     #bateau non touché
                     drawing.create_oval(predX, predY, X, Y)
 
@@ -187,10 +187,12 @@ def new_game(isSolo):
     
     #Création et initialisation de la grille du joueur 1
     global player1Tab   
-    player1Tab = [0]*LINES
-    for _ in range(LINES):
-        player1Tab[_] = [0]*COLUMNS
-    init_grid(1)
+    player1Tab = [0]*COLUMNS
+    print(player1Tab)
+    for _ in range(COLUMNS):
+        player1Tab[_] = [0]*LINES
+        print(player1Tab)
+    #init_grid(1)
 
     if MODE == 0:
         #====Solo====#
@@ -198,9 +200,9 @@ def new_game(isSolo):
         
         #Création et initialisation de la grille de l'ordinateur      
         global computerTab
-        computerTab = [0]*LINES
-        for _ in range(LINES):
-            computerTab[_] = [0]*COLUMNS
+        computerTab = [0]*COLUMNS
+        for _ in range(COLUMNS):
+            computerTab[_] = [0]*LINES
         init_grid(0)
 
         draw_grid(0)
@@ -211,9 +213,9 @@ def new_game(isSolo):
         
         #Création et initialisation de la grille du joueur 2
         global player2Tab
-        player2Tab = [0]*LINES
-        for _ in range(LINES):
-            player2Tab[_] = [0]*COLUMNS        
+        player2Tab = [0]*COLUMNS
+        for _ in range(COLUMNS):
+            player2Tab[_] = [0]*LINES        
         init_grid(2)
                     
 def continue_game():
@@ -231,7 +233,7 @@ def confir():
 def parameters():
     para = Tk()
     para.title("Paramètres")
-    para.geometry("400x380")
+    para.geometry("400x380+300+200")
 
     global colonesE,lignesE
 
