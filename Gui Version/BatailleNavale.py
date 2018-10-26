@@ -44,30 +44,26 @@ def draw_grid(instance):
         for x in range(COLUMNS):
             divC = 800/COLUMNS
             divL = 800/LINES
-            X = divC*x
-            Y = divL*y
+            X = int(divC*x) 
+            Y = int(divL*y) 
+            
             lines.append(drawing.create_line(X, 0, X, 800, width=3))
             lines.append(drawing.create_line(0, Y, 800, Y, width=3))
 
                       
-            predX = X-divC
-            predY = Y-divL
-            divC = divC/4
-            divL = divL/4
-
-            length = 0
-            if length == 1:
-                #Cercle
-                drawing.create_oval(predX+divC, predY+divL, predX+divC*3, predY+divL*3)
-            elif length == 2:
-                print()
-            elif length == 3:
-                print()
-            elif length == 4:
-                print()
-            elif length == 5:
-                print()  
+            id = tab[x][y] 
+            
+            if id != 0:
+                predX = X-divC
+                predY = Y-divL
                 
+                if id == -1: 
+                    #Bateau touché
+                    drawing.create_line(predX,predY, X, Y)
+                    drawing.create_line(predX, Y, X, predY)
+                 else:
+                    #bateau non touché
+                    drawing.create_oval(predX, predY, X, Y)
 
 '''
 Placement d'un bateau
@@ -194,7 +190,7 @@ def new_game(isSolo):
     player1Tab = [0]*LINES
     for _ in range(LINES):
         player1Tab[_] = [0]*COLUMNS
-    #init_grid(1)
+    init_grid(1)
 
     if MODE == 0:
         #====Solo====#
