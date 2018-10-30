@@ -33,7 +33,7 @@ MODE = 0 #0 pour SOLO / 1 pour MULTI
 player1Tab = []
 computerTab = []
 
-
+#Création des canevas, immportation des images, création du quadrillage et emplacements des canvas
 def draw_grid():
     global drawingComputer, drawingPlayer, tabPosImages
     global imageCaseInconnue, imageCaseBombe, imageCaseShip, imageCaseShipDestroyed, imageCaseMer
@@ -82,14 +82,16 @@ def draw_grid():
             X = int(divC*x) 
             Y = int(divL*y)
             
-            x2 = TAILLE_CASE_X*x + TAILLE_CASE_X/2
-            y2 = TAILLE_CASE_Y*y + TAILLE_CASE_Y/2
-            tabPosImages.append(drawingComputer.create_image(x2, y2, image = imageCaseInconnue))
-            
+            #Création du quadrillage
             drawingComputer.create_line(X, 0, X, SIZE_X, width=1)
             drawingComputer.create_line(0, Y, SIZE_Y, Y, width=1)
             drawingPlayer.create_line(X, 0, X, SIZE_X, width=1)
             drawingPlayer.create_line(0, Y, SIZE_Y, Y, width=1)
+            #Ajout d'une image (case inconnue)
+            x2 = TAILLE_CASE_X*x + TAILLE_CASE_X/2
+            y2 = TAILLE_CASE_Y*y + TAILLE_CASE_Y/2
+            tabPosImages.append(drawingComputer.create_image(x2, y2, image = imageCaseInconnue))
+            
     
 
 '''
@@ -103,16 +105,15 @@ shipPos = []
 shipIdPlayer = 1
 shipLeng = 1
 placeJoueur = True
-
+passage = False
 
 #Appel de la fonction lorsque le clic droit a été actionné ainsi 
 def xyPos(event):
-    global placeJoueur
-    print(placeJoueur)
+    global placeJoueur, passage
     if placeJoueur == True:
         global shipPos,UneCase, tmp, shipLeng
         UneCase = False
-        res = 0
+        reponse = 0
         #Si on a placé tous les bateaux d'une même taille, alors on récupère le nombre de bateaux à placer
         while tmp == 0:
             shipLeng = shipLeng + 1
@@ -129,24 +130,31 @@ def xyPos(event):
         #Si un bateau a une seule case, alors dès le début on place le bateau si possible
         if shipLeng == 1:
             UneCase = True
-            res = placement(shipLeng,shipIdPlayer, 1)
+            reponse = placement(shipLeng,shipIdPlayer, 1)
             shipPos = []
-            if res != -1:
+            if reponse != -1:
                 tmp = tmp -1
         #Lorsque l'utilisateur aura cliquer 2 fois, alors on essaye de placer le bateaux dans les cases correspondantes (case 1, pour la case
         #de début, case 2 en guise de direction du bateau)
         elif len(shipPos)==4 and shipLeng <= 5:
-            res  = placement(shipLeng,shipIdPlayer, 1)
+            reponse  = placement(shipLeng,shipIdPlayer, 1)
             shipPos = []
-            if res != -1:
+            if reponse != -1:
                 tmp = tmp -1
+        if shipLeng == 5 and tmp == 0:
+            placeJoueur = False
+    else:
+        if passage == False:
+            drawingComputer.bind("<Button-1>", jeu)
+            messagebox.showinfo("Bataille navale", "Le placement des bateaux du joueur et de l'oridnateur sont terminé. Vous pouvez commencer ŕ jouer !")
+            drawingComputer.config(cursor = "target")
+            passage = True
         
 
 def placement(shipLength, shipId, instance):
-
-    ship = []
+    #Création de tableaux vides utilisés dans la suite
+    ship = [] #Pour stocker
     tab = []
-    error = []
 
     if instance == 0:
         #Ordinateur               
@@ -159,11 +167,14 @@ def placement(shipLength, shipId, instance):
     else:
         tab = player1Tab
         print("Le joueur 1 remplit sa grille")
+        #On récupčre les x y stockés qui ont été récupérés pars xyPos()
         x = shipPos[0]
         y = shipPos[1]
+        #Si le bateau est ŕ une case, alors on ne cherche pas la direction, on lui infecte le numéro 5 qui n'a aucun effet
         if UneCase == False:
             x2 = shipPos[2]
             y2 = shipPos[3]
+            #On cherche la direction par rapport aux x et y
             if y2 == y - 1 and x2 == x:
                 direction = 1
             elif y2 == y + 1 and x2 == x:
@@ -178,28 +189,26 @@ def placement(shipLength, shipId, instance):
             direction = 5
 
     ship.append(str(x) + " " + str(y))
-    if instance == 1:
-            if tab[x][y] != 0:
-                error.append(-1)
-    
+
+    #Pour chaque case, on calcul les x y suivants en fonction de la direction
     for case in range(shipLength -1):
         if direction == 1 and y > 0:
-            #HAUT
+            #Direction vers le haut
             y = y - 1
             ship.append(str(x) + " " + str(y))
 
         elif direction == 2 and y < LINES - 1:
-            #BAS
+            #direction vers le bas
             y = y + 1
             ship.append(str(x) + " " + str(y))
 
         elif direction == 3 and x > 0:
-            #GAUCHE
+            #direction vers la gauche
             x = x - 1
             ship.append(str(x) + " " + str(y))
 
         elif direction == 4 and x < COLUMNS -1:
-            #DROITE
+            #direction vers la droite
             x = x + 1
             ship.append(str(x) + " " + str(y))
         elif direction == 5:
@@ -207,54 +216,30 @@ def placement(shipLength, shipId, instance):
         else:
             return -1
         
-        #Case occupée => on sort de la fonction
+        #Test si la position x y existe
         try:
+            #Case occupée => on sort de la fonction
             if tab[x][y] != 0:
                 return -1
         except:
             return -1
-        if instance == 1:
-            if tab[x][y] != 0:
-                error.append(-1)
 
-    if len(error)==0:
-        print(ship, shipId, shipLength)
+    print(ship, shipId, shipLength) #DEV
         #Toutes les positions sont OK
-        for case in range(len(ship)):
-            t = ship[case].split(" ")
-            print(t, COLUMNS,LINES, direction)
-            tab[int(t[0])][int(t[1])] = shipId
-        return 0
-    else:
-        return -1
-                        
-'''
-#Initialisation d'une grille
-instance :
-  0 : Ordinateur
-  1 : Joueur 1
-  2 : Joueur 2
-'''
-def init_grid(instance):
-    shipId = 1
-    
-    for shipLength in NUMBER_SHIPS_PER_LENGTH:
-        for ship in range(NUMBER_SHIPS_PER_LENGTH[shipLength]):
-            result = -1            
-            while result == -1 and NUMBER_SHIPS_PER_LENGTH[shipLength] != 0:                
-                result = placement(shipLength, shipId, instance)
-                
-                if result != -1:
-                    shipId = shipId + 1
+    for case in range(len(ship)):
+        xy = ship[case].split(" ")
+        print(xy, COLUMNS,LINES, direction) #DEV
+        #Si le joueur place ses bateaux, alors on place l'image imageCaseShip
+        if instance == 1:
+            drawingPlayer.create_image(int(xy[0])*TAILLE_CASE_X + TAILLE_CASE_X / 2, int(xy[1])*TAILLE_CASE_Y + TAILLE_CASE_Y / 2, image = imageCaseShip)
+        
+        tab[int(xy[0])][int(xy[1])] = shipId
+    return 0
 
 
-def new_game(isSolo):
-    print("Création d'une nouvelle partie...")
-    
-    global LINES, COLUMNS, NUMBER_SHIPS_PER_LENGTH, player1Tab, computerTab, tmp, MODE
+def new_game():
+    global LINES, COLUMNS, NUMBER_SHIPS_PER_LENGTH, player1Tab, computerTab, tmp
     global TAILLE_CASE_X, TAILLE_CASE_Y
-
-    MODE = isSolo
 
     #Paramètres non modifiés => On prend ceux par défaut
     if LINES == 0:
@@ -270,22 +255,30 @@ def new_game(isSolo):
     TAILLE_CASE_X = SIZE_X / COLUMNS
     TAILLE_CASE_Y = SIZE_Y / LINES
     
-    draw_grid()
-    
-    print("[1/3] Initialisation de la grille du joueur 1")
-    
-    #Création et initialisation de la grille du joueur 1
+    #Création de la grille du joueur
     player1Tab = [0]*COLUMNS
     for _ in range(COLUMNS):
         player1Tab[_] = [0]*LINES
-
-    print("[2/3] Initialisation de la grille de l'ordinateur")
         
     #Création et initialisation de la grille de l'ordinateur      
     computerTab = [0]*COLUMNS
     for _ in range(COLUMNS):
         computerTab[_] = [0]*LINES
-    init_grid(0)
+
+    shipId = 1
+    #Pour chaque longueur de bateau
+    for shipLength in NUMBER_SHIPS_PER_LENGTH:
+        #Pour chaque bateau de longueur shipLength
+        for ship in range(NUMBER_SHIPS_PER_LENGTH[shipLength]):
+            result = -1
+            #Tant que la fonction ne retourne pas le succčs (0)
+            while result == -1 and NUMBER_SHIPS_PER_LENGTH[shipLength] != 0:                
+                result = placement(shipLength, shipId, 0)
+                #S'il n'y a pas eu d'erreurs, alors on incrémente l'id du bateau
+                if result != -1:
+                    shipId = shipId + 1
+
+    draw_grid()
 
 
 def changeParametres():
@@ -377,11 +370,20 @@ def callback():
     if messagebox.askokcancel("Quit", "Voulez-vous vraiment quitter?"):
         window.destroy()
 
+def jeu(event):
+    caseX = floor(event.x / TAILLE_CASE_X)
+    caseY = floor(event.y / TAILLE_CASE_Y)
+    if (computerTab[caseX][caseY] > 0):
+        drawingComputer.create_image(caseX * TAILLE_CASE_X + TAILLE_CASE_X /2, caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2, image=imageCaseShip)
+    elif (computerTab[caseX][caseY] == 0):
+        drawingComputer.create_image(caseX * TAILLE_CASE_X + TAILLE_CASE_X /2, caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2, image=imageCaseMer)
+
 def main_menu():
     global window
     window = Tk()
     window.title("Bataille Navale")
     window.geometry("1280x700")
+    window.resizable(False, False)
 
     menu = Menu(window)
 
@@ -390,8 +392,8 @@ def main_menu():
 
     menu1bis = Menu(menu1, tearoff=0)
     menu1.add_cascade(label="Nouvelle Partie", menu=menu1bis)
-    menu1bis.add_command(label="1 joueur", command=lambda: new_game(0))
-    menu1bis.add_command(label="2 joueurs", command=lambda: new_game(1))   
+    menu1bis.add_command(label="1 joueur", command=new_game)
+    menu1bis.add_command(label="2 joueurs", command=new_game)   
     #menu1.add_command(label="Continuer Partie", command=continue_game)
 
     menu2 = Menu(menu, tearoff=0)
@@ -404,7 +406,6 @@ def main_menu():
     window.config(menu=menu)
 
     window.protocol("WM_DELETE_WINDOW", callback)
-    window.resizable(False, False)
     
     window.mainloop()
 
