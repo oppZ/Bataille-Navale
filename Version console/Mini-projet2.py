@@ -347,12 +347,9 @@ def afficherJeu(preparation):
                     print("C",sep='',end='')
             print("")
 
-def 
-
 def commencerPartie():
     preparations()
     afficherJeu(False)
-    while 
     os.system("Pause")
     
 def main():
