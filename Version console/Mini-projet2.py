@@ -346,7 +346,7 @@ def afficherJeu(preparation):
                 elif JeuOrdinateur[h][t]==3:
                     print("C",sep='',end='')
             print("")
-    
+
 def commencerPartie():
     preparations()
     afficherJeu(False)
