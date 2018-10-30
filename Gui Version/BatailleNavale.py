@@ -92,15 +92,7 @@ def draw_grid():
             y2 = TAILLE_CASE_Y*y + TAILLE_CASE_Y/2
             tabPosImages.append(drawingComputer.create_image(x2, y2, image = imageCaseInconnue))
             
-    
-
-'''
-Placement d'un bateau
-instance :
-  0 : Ordinateur
-  1 : Joueur 1
-  2 : Joueur 2
-'''
+            
 shipPos = []
 shipIdPlayer = 1
 shipLeng = 1
@@ -277,9 +269,8 @@ def new_game():
                 #S'il n'y a pas eu d'erreurs, alors on incrémente l'id du bateau
                 if result != -1:
                     shipId = shipId + 1
-
+    #Affiche les grilles
     draw_grid()
-
 
 def changeParametres():
     global LINES, COLUMNS
