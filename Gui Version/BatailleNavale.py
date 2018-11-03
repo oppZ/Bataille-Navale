@@ -29,10 +29,6 @@ MAX_SHIPS_PER_LENGTH = 8
 
 MODE = 0 #0 pour SOLO / 1 pour MULTI
 
-
-player1Tab = []
-computerTab = []
-
 #Création des canevas, immportation des images, création du quadrillage et emplacements des canvas
 def draw_grid():
     global drawingComputer, drawingPlayer, tabPosImages
@@ -73,7 +69,6 @@ def draw_grid():
     drawingPlayer.create_line(SIZE_X,SIZE_Y,2,SIZE_Y, width=2)
     drawingPlayer.create_line(3,SIZE_Y,3,3, width=2)
 
-    tabPosImages = []
     #Création de lignes sur les canvas de l'ordinateur et de l'utilisateur
     for y in range(LINES):
         for x in range(COLUMNS):
@@ -87,17 +82,23 @@ def draw_grid():
             drawingComputer.create_line(0, Y, SIZE_Y, Y, width=1)
             drawingPlayer.create_line(X, 0, X, SIZE_X, width=1)
             drawingPlayer.create_line(0, Y, SIZE_Y, Y, width=1)
-            #Ajout d'une image (case inconnue)
-            x2 = TAILLE_CASE_X*x + TAILLE_CASE_X/2
-            y2 = TAILLE_CASE_Y*y + TAILLE_CASE_Y/2
-            tabPosImages.append(drawingComputer.create_image(x2, y2, image = imageCaseInconnue))
-            
-            
+            #Ajout d'images (case inconnue) sur la grille de l'ordinateur
+            caseX = TAILLE_CASE_X*x + TAILLE_CASE_X/2
+            caseY = TAILLE_CASE_Y*y + TAILLE_CASE_Y/2
+            drawingComputer.create_image(caseX, caseY, image = imageCaseInconnue)
+            #Ajout d'images mer sur la grille du joueur
+            drawingPlayer.create_image(caseX, caseY, image = imageCaseMer)
+    
+
+'''
+Placement d'un bateau
+instance :
+  0 : Ordinateur
+  1 : Joueur 1
+'''
 shipPos = []
 shipIdPlayer = 1
 shipLeng = 1
-placeJoueur = True
-passage = False
 
 #Appel de la fonction lorsque le clic droit a été actionné ainsi 
 def xyPos(event):
@@ -138,9 +139,11 @@ def xyPos(event):
     else:
         if passage == False:
             drawingComputer.bind("<Button-1>", jeu)
-            messagebox.showinfo("Bataille navale", "Le placement des bateaux du joueur et de l'oridnateur sont terminé. Vous pouvez commencer ŕ jouer !")
+            messagebox.showinfo("Bataille navale", "Vous avez terminé de placer vos bateaux. Vous pouvez commencer ŕ jouer !")
             drawingComputer.config(cursor = "target")
             passage = True
+            #shipIdPlayer = 1
+            shipLeng = 1
         
 
 def placement(shipLength, shipId, instance):
@@ -231,7 +234,15 @@ def placement(shipLength, shipId, instance):
 
 def new_game():
     global LINES, COLUMNS, NUMBER_SHIPS_PER_LENGTH, player1Tab, computerTab, tmp
-    global TAILLE_CASE_X, TAILLE_CASE_Y
+    global TAILLE_CASE_X, TAILLE_CASE_Y, placeJoueur, passage
+    
+    #Tableaux pour les jeu de l'ordinateur et de le joueur
+    player1Tab = []
+    computerTab = []
+
+    #Booléans qui servent de stop dans la fonction xyPos(event)
+    placeJoueur = True
+    passage = False
 
     #Paramètres non modifiés => On prend ceux par défaut
     if LINES == 0:
@@ -251,7 +262,6 @@ def new_game():
     player1Tab = [0]*COLUMNS
     for _ in range(COLUMNS):
         player1Tab[_] = [0]*LINES
-        
     #Création et initialisation de la grille de l'ordinateur      
     computerTab = [0]*COLUMNS
     for _ in range(COLUMNS):
@@ -269,8 +279,9 @@ def new_game():
                 #S'il n'y a pas eu d'erreurs, alors on incrémente l'id du bateau
                 if result != -1:
                     shipId = shipId + 1
-    #Affiche les grilles
+
     draw_grid()
+
 
 def changeParametres():
     global LINES, COLUMNS
@@ -362,12 +373,16 @@ def callback():
         window.destroy()
 
 def jeu(event):
+    #Récupération des x y de la sourie dans la grille de l'orinateur  
     caseX = floor(event.x / TAILLE_CASE_X)
     caseY = floor(event.y / TAILLE_CASE_Y)
+    #Calcul des x y correspondant pour pouvoir afficher l'image centré dans une case
+    x = caseX * TAILLE_CASE_X + TAILLE_CASE_X /2
+    y = caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2
     if (computerTab[caseX][caseY] > 0):
-        drawingComputer.create_image(caseX * TAILLE_CASE_X + TAILLE_CASE_X /2, caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2, image=imageCaseShip)
+        drawingComputer.create_image(x, y, image=imageCaseShip)
     elif (computerTab[caseX][caseY] == 0):
-        drawingComputer.create_image(caseX * TAILLE_CASE_X + TAILLE_CASE_X /2, caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2, image=imageCaseMer)
+        drawingComputer.create_image(x, y, image=imageCaseMer)
 
 def main_menu():
     global window
