@@ -97,7 +97,6 @@ instance :
   1 : Joueur 1
 '''
 shipPos = []
-shipIdPlayer = 1
 shipLeng = 1
 
 #Appel de la fonction lorsque le clic droit a été actionné ainsi 
@@ -234,7 +233,7 @@ def placement(shipLength, shipId, instance):
 
 def new_game():
     global LINES, COLUMNS, NUMBER_SHIPS_PER_LENGTH, player1Tab, computerTab, tmp
-    global TAILLE_CASE_X, TAILLE_CASE_Y, placeJoueur, passage
+    global TAILLE_CASE_X, TAILLE_CASE_Y, placeJoueur, passage, shipIdPlayer
     
     #Tableaux pour les jeu de l'ordinateur et de le joueur
     player1Tab = []
@@ -243,6 +242,8 @@ def new_game():
     #Booléans qui servent de stop dans la fonction xyPos(event)
     placeJoueur = True
     passage = False
+
+    shipIdPlayer = 1
 
     #Paramètres non modifiés => On prend ceux par défaut
     if LINES == 0:
