@@ -28,29 +28,32 @@ NUMBER_SHIPS_PER_LENGTH = {}
 MAX_SHIPS_PER_LENGTH = 8
 
 MODE = 0 #0 pour SOLO / 1 pour MULTI
-GAME_MODE #0 pour PLACEMENT / 1 pour ATTAQUE
+GAME_MODE = 0 #0 pour PLACEMENT / 1 pour ATTAQUE
 
 IMGS_TAB = [] #Tableau des images
 
 shipPos = []
-shipLen = 1
+shipLengthPlayer = 1
 
-#Event clic pour la grille du joueur
+'''
+Event clic sur la grille du joueur
+ARGS :
+ event (event clic)
+ 
+TODO : DONE
+'''
 def xy_player_grid(event):
     global GAME_MODE
     
     if GAME_MODE == 0:
-        global shipPos, nbBoats, shipLen
+        global shipPos, nbBoats, shipLengthPlayer
         result = 0
         
-        '''
-        On récupère la prochaine taille du bateau dont le nombre attribué
-        n'est pas égal à 0
-        '''  
+        #On récupère la prochaine taille de bateau
         while nbBoats == 0:
-            shipLen += 1
+            shipLengthPlayer += 1
             try:
-                nbBoats = deepcopy(NUMBER_SHIPS_PER_LENGTH[shipLen])
+                nbBoats = deepcopy(NUMBER_SHIPS_PER_LENGTH[shipLengthPlayer])
             except:
                 GAME_MODE = 1 #Changement du mode de jeu en "Attaque"
                 
@@ -59,39 +62,53 @@ def xy_player_grid(event):
         eventY = event.y
         shipPos.append(ceil(eventX/TAILLE_CASE_X)-1)
         shipPos.append(ceil(eventY/TAILLE_CASE_Y)-1)
-        
+        print(shipPos)        
         #Si un bateau a une seule case, alors dès le début on place le bateau si possible
-        if shipLen == 1:
-            
-            if placement(shipLeng,shipIdPlayer, 1) != -1:
+        if shipLengthPlayer == 1:
+            if placement(shipLengthPlayer,shipIdPlayer, 1) != -1:
                 nbBoats -= 1
-        '''
-        Si l'utilisateur a cliqué 2 fois, on essaye de placer
-        le bateau
-        '''
-        elif len(shipPos)==4 and shipLen <= 5:
             shipPos = []
-            
-            if placement(shipLen,shipIdPlayer, 1) != -1:
+        #L'utilisateur a cliqué 2 fois => On essaye de placer le bateau
+        elif len(shipPos)==4 and shipLengthPlayer <= 5:
+            if placement(shipLengthPlayer,shipIdPlayer, 1) != -1:
                 nbBoats -=1
-
-        '''
-        Si on a finit de placer les bateaux, on passe en mode
-        "Attaque"
-        '''
-        if shipLen >= 5 and nbBoats == 0:
+            shipPos = []
+        #Bateaux finis d'être placés => Changement du mode de jeu
+        if shipLengthPlayer >= 5 and nbBoats == 0:
             computerGrid.bind("<Button-1>", xy_computer_grid) #Les coordonnées sont maintenant captées par xy_computer_grid(event)
             messagebox.showinfo("Bataille navale", "Vous avez terminé de placer vos bateaux. Vous pouvez commencer à jouer !")
             computerGrid.config(cursor = "target")
             GAME_MODE = 2 #Changement du mode de jeu en "Attaque"
             #shipIdPlayer = 1
-            #shipLen = 1
+            shipLen = 1
                 
     return
 
 '''
-Création des grilles du joueur
-et de l'ordinateur
+Event clic sur la grille du joueur
+ARGS :
+ event (event clic)
+ 
+TODO : DONE
+'''
+def xy_computer_grid(event):
+    #Récupération des coordonnées de la souris dans la grille de l'orinateur  
+    caseX = floor(event.x / TAILLE_CASE_X)
+    caseY = floor(event.y / TAILLE_CASE_Y)
+    #Calcul des coordonnées correspondant pour pouvoir afficher l'image centrée dans une case
+    x = caseX * TAILLE_CASE_X + TAILLE_CASE_X /2
+    y = caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2
+    
+    if (computerTab[caseX][caseY] > 0):
+        computerGrid.create_image(x, y, image=IMGS_TAB[2])
+    elif (computerTab[caseX][caseY] == 0):
+        computerGrid.create_image(x, y, image=IMGS_TAB[1])
+
+    return
+
+'''
+Création des grilles du joueur et de l'ordinateur
+
 TODO : DONE
 '''
 def create_grids():
@@ -99,24 +116,22 @@ def create_grids():
     global IMGS_TAB
     
     #Rangement des images dans le tableau
-    imgTab.append(PhotoImage(file ="unknown.png"))
-    imgTab.append(PhotoImage(file = "sea.png"))
-    imgTab.append(PhotoImage(file = "ship.png"))
-    imgTab.append(PhotoImage(file = "destroyedShip.png"))
+    IMGS_TAB.append(PhotoImage(file ="unknown.png"))
+    IMGS_TAB.append(PhotoImage(file = "sea.png"))
+    IMGS_TAB.append(PhotoImage(file = "ship.png"))
+    IMGS_TAB.append(PhotoImage(file = "destroyedShip.png"))
     
     #Titres
     cTitle = Label(window, text = "Grille de l'ordinateur")
     pTitle = Label(window, text = "Grille du joueur")
-    
-    #Taille du titre
     cTitle.configure(font='Helvetica 18 bold')
-    tTitle.configure(font='Helvetica 18 bold')
+    pTitle.configure(font='Helvetica 18 bold')
     
     #Création de canvas
     computerGrid = Canvas(window, bg = "white", width = SIZE_X, height = SIZE_Y)
     playerGrid = Canvas(window, bg = "white", width = SIZE_X, height = SIZE_Y)
 
-    gridToPlace = playerGrid.bind( "<Button-1>", xyPos)
+    gridToPlace = playerGrid.bind( "<Button-1>", xy_player_grid)
 
     #Positionnement des titres et des canvas
     computerGrid.grid(row = 1, column = 0, padx = 60, pady = 25)
@@ -152,17 +167,22 @@ def create_grids():
             caseX = TAILLE_CASE_X*x + TAILLE_CASE_X/2
             caseY = TAILLE_CASE_Y*y + TAILLE_CASE_Y/2
             
-            #Ajout d'images "case inconnue" sur la grille de l'ordinateur
+            #Ajout image "Inconnue" sur la grille de l'ordinateur
             computerGrid.create_image(caseX, caseY, image = IMGS_TAB[0])
-            #Ajout d'images "mer" sur la grille du joueur
+            #Ajout image "Mer" sur la grille du joueur
             playerGrid.create_image(caseX, caseY, image = IMGS_TAB[1])
     return
         
 '''
 Placement d'un bateau
-instance :
+ARGS :
+ shipLength (longueur du bateau)
+ shipId (id du bateau)
+ instance (instance) :
   0 : Ordinateur
   1 : Joueur 1
+
+TODO : 
 '''
 def placement(shipLength, shipId, instance):
     ship = []
@@ -183,7 +203,7 @@ def placement(shipLength, shipId, instance):
         x = shipPos[0]
         y = shipPos[1]
 
-        if shipLen == 1:
+        if shipLengthPlayer == 1:
             direction = -1
         else:
             x2 = shipPos[2]
@@ -224,6 +244,7 @@ def placement(shipLength, shipId, instance):
             elif direction == 4 and x < COLUMNS -1:
                 #DROITE
                 x += 1
+                ship.append(str(x) + " " + str(y))
             else:
                 return -1
         
@@ -247,6 +268,8 @@ def placement(shipLength, shipId, instance):
 
 '''
 Création d'une nouvelle partie
+
+TODO : 
 '''
 def new_game():
     global LINES, COLUMNS, NUMBER_SHIPS_PER_LENGTH
@@ -271,7 +294,7 @@ def new_game():
     if len(NUMBER_SHIPS_PER_LENGTH) == 0:
         NUMBER_SHIPS_PER_LENGTH = deepcopy(NUMBER_DEFAULT_SHIPS_PER_LENGTH)
 
-    nbBoats = deepcopy(NUMBER_SHIPS_PER_LENGTH[shipLen])
+    nbBoats = deepcopy(NUMBER_SHIPS_PER_LENGTH[shipLengthPlayer])
 
     #Taille d'une case horizontalement et verticalement
     TAILLE_CASE_X = SIZE_X / COLUMNS
@@ -303,23 +326,11 @@ def new_game():
     #Création des grilles du joueur et de l'ordinateur
     create_grids()
 
-
-def xy_computer_grid(event):
-    #Récupération des coordonnées de la souris dans la grille de l'orinateur  
-    caseX = floor(event.x / TAILLE_CASE_X)
-    caseY = floor(event.y / TAILLE_CASE_Y)
-    #Calcul des coordonnées correspondant pour pouvoir afficher l'image centrée dans une case
-    x = caseX * TAILLE_CASE_X + TAILLE_CASE_X /2
-    y = caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2
-    
-    if (computerTab[caseX][caseY] > 0):
-        drawingComputer.create_image(x, y, image=IMGS_TAB[2])
-    elif (computerTab[caseX][caseY] == 0):
-        drawingComputer.create_image(x, y, image=IMGS_TAB[1])
-
 '''
 Application des paramètres
-TODO : -Prendre en compte la modification des tailles de bateaux
+
+TODO :
+ Prendre en compte la modification des tailles de bateaux
 '''
 def change_settings():
     global LINES, COLUMNS
@@ -328,8 +339,10 @@ def change_settings():
     
 '''
 Menu "Paramètres"
-TODO : -Changer les noms des variables
-       -Depop la fenêtre quand on clique sur confirmer
+
+TODO :
+ Changer les noms des variables
+ Depop la fenêtre quand on clique sur confirmer
 '''
 def settings():
     settings = Tk()
@@ -408,6 +421,7 @@ def settings():
 
 '''
 Menu "A propos"
+
 TODO : ALL
 '''
 def informations():
@@ -415,13 +429,15 @@ def informations():
 
 '''
 Confirmation lors du clic du boutton "Quitter"
+
 TODO : DONE
 '''
 def callback():
     if messagebox.askokcancel("Quit", "Voulez-vous vraiment quitter ?"):
         window.destroy()
 '''
-Menu principal
+Fonction principale (Menu principal)
+
 TODO : DONE
 '''
 def main_menu():
@@ -455,3 +471,4 @@ def main_menu():
     window.mainloop()
 
 main_menu()
+
