@@ -1,6 +1,4 @@
 from tkinter import *
-from tkinter import ttk
-from tkinter import messagebox
 from random import *
 from copy import *
 from math import *
@@ -28,7 +26,7 @@ NUMBER_SHIPS_PER_LENGTH = {}
 MAX_SHIPS_PER_LENGTH = 8
 
 MODE = 0 #0 pour SOLO / 1 pour MULTI
-GAME_MODE #0 pour PLACEMENT / 1 pour ATTAQUE
+GAME_MODE = 0 #0 pour PLACEMENT / 1 pour ATTAQUE
 
 IMGS_TAB = [] #Tableau des images
 
@@ -118,16 +116,16 @@ def create_grids():
     global IMGS_TAB
     
     #Rangement des images dans le tableau
-    imgTab.append(PhotoImage(file ="unknown.png"))
-    imgTab.append(PhotoImage(file = "sea.png"))
-    imgTab.append(PhotoImage(file = "ship.png"))
-    imgTab.append(PhotoImage(file = "destroyedShip.png"))
+    IMGS_TAB.append(PhotoImage(file ="unknown.png"))
+    IMGS_TAB.append(PhotoImage(file = "sea.png"))
+    IMGS_TAB.append(PhotoImage(file = "ship.png"))
+    IMGS_TAB.append(PhotoImage(file = "destroyedShip.png"))
     
     #Titres
     cTitle = Label(window, text = "Grille de l'ordinateur")
     pTitle = Label(window, text = "Grille du joueur")
     cTitle.configure(font='Helvetica 18 bold')
-    tTitle.configure(font='Helvetica 18 bold')
+    pTitle.configure(font='Helvetica 18 bold')
     
     #Création de canvas
     computerGrid = Canvas(window, bg = "white", width = SIZE_X, height = SIZE_Y)
