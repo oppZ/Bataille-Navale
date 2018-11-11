@@ -104,8 +104,7 @@ ARGS :
  
 TODO : DONE
 '''
-def xy_computer_grid(event):
-    global END_GAME
+def xy_computer_grid(event):   
     #Tour du joueur
     if SITUATION == 0:
         #Récupération des coordonnées de la souris dans la grille de l'orinateur  
@@ -115,25 +114,46 @@ def xy_computer_grid(event):
         #Calcul des coordonnées correspondant pour pouvoir afficher l'image centrée dans une case
         x = caseX * TAILLE_CASE_X + TAILLE_CASE_X /2
         y = caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2
-
-        if computerCase == 100 or computerCase < 0:
-            caseTouche = True
-        else:
-            caseTouche = False
         
         if (computerCase > 0 and computerCase != 100):
             computerGrid.create_image(x, y, image=IMGS_TAB[2]) #Affiche bateau
             computerCase = -computerCase
+            SITUATION = 1
+            for case in computerTab:
+                if case > 0
+                    SITUATION = 0
+                    break            
             
         elif (computerCase == 0):
             computerGrid.create_image(x, y, image=IMGS_TAB[1]) #Affiche la mer
             computerCase = 100
-
-        
-
-    if SITUATION != 0 and END_GAME == False:
+        else:
+            return #On sort si le joueur n'a pas cliqué sur une case valide
+            
+    #Tour de l'ordinateur
+    if SITUATION != 0:
         end_game(SITUATION)
-        END_GAME = True
+    else:
+        while True:
+            #On récupère une case
+            #Si case valide, on sort de la boucle
+
+        #Calcul des coordonnées correspondant pour pouvoir afficher l'image centrée dans une case
+        x = caseX * TAILLE_CASE_X + TAILLE_CASE_X /2
+        y = caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2
+        
+        if (playerGrid > 0 and playerCase != 100):
+            playerGrid.create_image(x, y, image=IMGS_TAB[3]) #Affiche bateau
+            playerCase = -playerCase
+            SITUATION = 2
+            for case in playerTab:
+                if case > 0
+                    SITUATION = 0
+                    break            
+            
+        elif (playerCase == 0):
+            playerGrid.create_image(x, y, image=IMGS_TAB[2]) #Affiche explosion
+            playerCase = 100      
     return
 
 '''
@@ -148,6 +168,7 @@ def create_grids():
     #Rangement des images dans le tableau
     IMGS_TAB.append(PhotoImage(file ="unknown.png"))
     IMGS_TAB.append(PhotoImage(file = "sea.png"))
+    IMGS_TAB.append(PhotoImage(file = "bomb.png"))
     IMGS_TAB.append(PhotoImage(file = "ship.png"))
     IMGS_TAB.append(PhotoImage(file = "destroyedShip.png"))
     
