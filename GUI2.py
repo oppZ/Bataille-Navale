@@ -35,50 +35,58 @@ IMGS_TAB = [] #Tableau des images
 shipPos = []
 shipLen = 1
 
-#Event clic pour placement
-def xyPos(event):
-    global placeJoueur, passage
-    if playerPlace:
-        global shipPos,UneCase, nbBoats, shipLeng
-        UneCase = False
-        reponse = 0
+#Event clic pour la grille du joueur
+def xy_player_grid(event):
+    global GAME_MODE
+    
+    if GAME_MODE == 0:
+        global shipPos, nbBoats, shipLen
+        result = 0
         
-        #Si on a placé tous les bateaux d'une même taille, alors on récupère le nombre de bateaux à placer
+        '''
+        On récupère la prochaine taille du bateau dont le nombre attribué
+        n'est pas égal à 0
+        '''  
         while nbBoats == 0:
-            shipLen = shipLen + 1
+            shipLen += 1
             try:
-                nbBoats = NUMBER_SHIPS_PER_LENGTH[shipLen]
+                nbBoats = deepcopy(NUMBER_SHIPS_PER_LENGTH[shipLen])
             except:
-                #Le joueur ne doit plus placer ses bateaux
-                playerPlace = False
+                GAME_MODE == 1 #Changement du mode de jeu en "Attaque"
                 
-        #On récupère les positions de x y sur le canvas, puis on calcul la case correspondante
+        #On récupère les positions x/y sur le canvas, puis on calcule la case correspondante
         eventX = event.x
         eventY = event.y
         shipPos.append(ceil(eventX/TAILLE_CASE_X)-1)
         shipPos.append(ceil(eventY/TAILLE_CASE_Y)-1)
+        
         #Si un bateau a une seule case, alors dès le début on place le bateau si possible
         if shipLen == 1:
-            UneCase = True
+            
             if placement(shipLeng,shipIdPlayer, 1) != -1:
-                nbBoats = nbBoats -1
-        #Lorsque l'utilisateur aura cliquer 2 fois, alors on essaye de placer le bateaux dans les cases correspondantes (case 1, pour la case
-        #de début, case 2 en guise de direction du bateau)
-        elif len(shipPos)==4 and shipLeng <= 5:
-            reponse  = placement(shipLeng,shipIdPlayer, 1)
+                nbBoats -= 1
+        '''
+        Si l'utilisateur a cliqué 2 fois, on essaye de placer
+        le bateau
+        '''
+        elif len(shipPos)==4 and shipLen <= 5:
             shipPos = []
-            if reponse != -1:
-                tmp = tmp -1
-        if shipLeng == 5 and tmp == 0:
-            placeJoueur = False
-    else:
-        if passage == False:
-            computerGrid.bind("<Button-1>", jeu)
-            messagebox.showinfo("Bataille navale", "Vous avez terminé de placer vos bateaux. Vous pouvez commencer ŕ jouer !")
+            
+            if placement(shipLen,shipIdPlayer, 1) != -1:
+                nbBoats -=1
+
+        '''
+        Si on a finit de placer les bateaux, on passe en mode
+        "Attaque"
+        '''
+        if shipLen >= 5 and nbBoats == 0:
+            computerGrid.bind("<Button-1>", xy_computer_grid) #Les coordonnées sont maintenant captées par xy_computer_grid(event)
+            messagebox.showinfo("Bataille navale", "Vous avez terminé de placer vos bateaux. Vous pouvez commencer à jouer !")
             computerGrid.config(cursor = "target")
-            passage = True
+            GAME_MODE = 2 #Changement du mode de jeu en "Attaque"
             #shipIdPlayer = 1
-            shipLeng = 1
+            #shipLen = 1
+                
     return
 
 '''
@@ -172,15 +180,16 @@ def placement(shipLength, shipId, instance):
         #Joueur
         tab = player1Tab
         print("Le joueur 1 remplit sa grille")
-        #On récupère les coordonnées récupèrées par xyPos()
+        #On récupère les coordonnées récupèrées par xy_player_placement(event)
         x = shipPos[0]
         y = shipPos[1]
-        '''
-        g
-        '''
-        if UneCase == False:
+
+        if shipLen == 1:
+            direction = 5
+        else:
             x2 = shipPos[2]
             y2 = shipPos[3]
+            
             #On cherche la direction
             if y2 == y - 1 and x2 == x:
                 direction = 1
@@ -192,12 +201,10 @@ def placement(shipLength, shipId, instance):
                 direction = 4
             else:
                 return -1
-        else:
-            direction = 5
 
     ship.append(str(x) + " " + str(y))
 
-    #Pour chaque case, on calcul les x y suivants en fonction de la direction
+    #Pour chaque case, on calcule les x y suivants en fonction de la direction
     for case in range(shipLength -1):
         if direction == 1 and y > 0:
             #HAUT
@@ -233,7 +240,6 @@ def placement(shipLength, shipId, instance):
     #Toutes les positions sont OK
     for case in range(len(ship)):
         xy = ship[case].split(" ")
-        print(xy, COLUMNS,LINES, direction) #DEV
         #Si le joueur place ses bateaux, alors on place l'image imageCaseShip
         if instance == 1:
             playerGrid.create_image(int(xy[0])*TAILLE_CASE_X + TAILLE_CASE_X / 2, int(xy[1])*TAILLE_CASE_Y + TAILLE_CASE_Y / 2, image = IMGS_TAB[2])
@@ -247,16 +253,16 @@ Création d'une nouvelle partie
 def new_game():
     global LINES, COLUMNS, NUMBER_SHIPS_PER_LENGTH
     global player1Tab, computerTab #Tableaux des grilles du joueur et de l'ordinateur
-    global TAILLE_CASE_X, TAILLE_CASE_Y, placeJoueur, passage, shipIdPlayer
+    global TAILLE_CASE_X, TAILLE_CASE_Y, shipIdPlayer
     global nbBoats #Nombre de bateaux d'une taille donnée
     global playerPlace #Le joueur place t-il ses bateaux ?
+    global GAME_MODE #Mode de jeu (0 : placement, 1 : attaque)
     
     #Tableaux pour les grilles du joueur 1 et de l'ordinateur
     player1Tab = []
     computerTab = []
 
-    playerPlace = True
-    passage = False
+    GAME_MODE = 0
 
     shipIdPlayer = 1
 
