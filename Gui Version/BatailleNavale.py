@@ -29,6 +29,7 @@ MAX_SHIPS_PER_LENGTH = 8
 
 MODE = 0 #0 pour SOLO / 1 pour MULTI
 GAME_MODE = 0 #0 pour PLACEMENT / 1 pour ATTAQUE
+SITUATION = 0 #0 pour EN JEU / 1 pour GAGNÉ / 2 pour PERDU
 
 IMGS_TAB = [] #Tableau des images
 
@@ -80,9 +81,21 @@ def xy_player_grid(event):
             computerGrid.config(cursor = "target")
             GAME_MODE = 2 #Changement du mode de jeu en "Attaque"
             #shipIdPlayer = 1
-            shipLen = 1
+            shipLengthPlayer = 1
                 
     return
+
+def end_game(situation):
+    if SITUATION == 0:
+        return
+    
+    if SITUATION == 1:
+        #Gagné
+        messagebox.showinfo("Bataille Navale - Victoire", "Vous avez gagné !")
+    else:
+        #Perdu
+        messagebox.showinfo("Bataille Navale - Défaite", "Vous avez perdu !")
+        
 
 '''
 Event clic sur la grille du joueur
@@ -92,17 +105,26 @@ ARGS :
 TODO : DONE
 '''
 def xy_computer_grid(event):
-    #Récupération des coordonnées de la souris dans la grille de l'orinateur  
-    caseX = floor(event.x / TAILLE_CASE_X)
-    caseY = floor(event.y / TAILLE_CASE_Y)
-    #Calcul des coordonnées correspondant pour pouvoir afficher l'image centrée dans une case
-    x = caseX * TAILLE_CASE_X + TAILLE_CASE_X /2
-    y = caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2
-    
-    if (computerTab[caseX][caseY] > 0):
-        computerGrid.create_image(x, y, image=IMGS_TAB[2])
-    elif (computerTab[caseX][caseY] == 0):
-        computerGrid.create_image(x, y, image=IMGS_TAB[1])
+    #Tour du joueur
+    if SITUATION == 0:
+        #Récupération des coordonnées de la souris dans la grille de l'orinateur  
+        caseX = floor(event.x / TAILLE_CASE_X)
+        caseY = floor(event.y / TAILLE_CASE_Y)
+        computerCase = computerTab[caseX][caseY]
+        #Calcul des coordonnées correspondant pour pouvoir afficher l'image centrée dans une case
+        x = caseX * TAILLE_CASE_X + TAILLE_CASE_X /2
+        y = caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2
+        
+        if (computerCase != ):
+            computerGrid.create_image(x, y, image=IMGS_TAB[2])
+            computerCase = 1
+            for comput
+            
+        elif (computerTab[caseX][caseY] == 0):
+            computerGrid.create_image(x, y, image=IMGS_TAB[1])
+
+    if SITUATION != 0:
+        end_game(SITUATION)
 
     return
 
@@ -203,7 +225,7 @@ def placement(shipLength, shipId, instance):
         x = shipPos[0]
         y = shipPos[1]
 
-        if shipLengthPlayer == 1:
+        if shipLength == 1:
             direction = -1
         else:
             x2 = shipPos[2]
@@ -274,6 +296,7 @@ TODO :
 def new_game():
     global LINES, COLUMNS, NUMBER_SHIPS_PER_LENGTH
     global player1Tab, computerTab #Tableaux des grilles du joueur et de l'ordinateur
+    global alreadyCliqued #Tableau qui répertori les différentes cases où le joeur a déjà cliqué
     global TAILLE_CASE_X, TAILLE_CASE_Y, shipIdPlayer
     global nbBoats #Nombre de bateaux d'une taille donnée
     global GAME_MODE
