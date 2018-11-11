@@ -115,6 +115,11 @@ def xy_computer_grid(event):
         #Calcul des coordonnées correspondant pour pouvoir afficher l'image centrée dans une case
         x = caseX * TAILLE_CASE_X + TAILLE_CASE_X /2
         y = caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2
+
+        if computerCase == 100 or computerCase < 0:
+            caseTouche = True
+        else:
+            caseTouche = False
         
         if (computerCase > 0 and computerCase != 100):
             computerGrid.create_image(x, y, image=IMGS_TAB[2]) #Affiche bateau
@@ -123,6 +128,8 @@ def xy_computer_grid(event):
         elif (computerCase == 0):
             computerGrid.create_image(x, y, image=IMGS_TAB[1]) #Affiche la mer
             computerCase = 100
+
+        
 
     if SITUATION != 0 and END_GAME == False:
         end_game(SITUATION)
