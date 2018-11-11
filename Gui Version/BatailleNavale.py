@@ -105,6 +105,7 @@ ARGS :
 TODO : DONE
 '''
 def xy_computer_grid(event):
+    global END_GAME
     #Tour du joueur
     if SITUATION == 0:
         #Récupération des coordonnées de la souris dans la grille de l'orinateur  
@@ -115,17 +116,17 @@ def xy_computer_grid(event):
         x = caseX * TAILLE_CASE_X + TAILLE_CASE_X /2
         y = caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2
         
-        if (computerCase != ):
-            computerGrid.create_image(x, y, image=IMGS_TAB[2])
-            computerCase = 1
-            for comput
+        if (computerCase > 0 and computerCase != 100):
+            computerGrid.create_image(x, y, image=IMGS_TAB[2]) #Affiche bateau
+            computerCase = -computerCase
             
-        elif (computerTab[caseX][caseY] == 0):
-            computerGrid.create_image(x, y, image=IMGS_TAB[1])
+        elif (computerCase == 0):
+            computerGrid.create_image(x, y, image=IMGS_TAB[1]) #Affiche la mer
+            computerCase = 100
 
-    if SITUATION != 0:
+    if SITUATION != 0 and END_GAME == False:
         end_game(SITUATION)
-
+        END_GAME = True
     return
 
 '''
@@ -299,7 +300,9 @@ def new_game():
     global alreadyCliqued #Tableau qui répertori les différentes cases où le joeur a déjà cliqué
     global TAILLE_CASE_X, TAILLE_CASE_Y, shipIdPlayer
     global nbBoats #Nombre de bateaux d'une taille donnée
-    global GAME_MODE
+    global GAME_MODE, END_GAME
+
+    END_GAME = False
     
     #Tableaux pour les grilles du joueur 1 et de l'ordinateur
     player1Tab = []
