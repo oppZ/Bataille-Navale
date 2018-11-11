@@ -1,7 +1,11 @@
 from tkinter import *
+from tkinter import ttk
+from tkinter import messagebox
+
 from random import *
 from copy import *
 from math import *
+
 import time
 
 NUMBER_DEFAULT_LINES = 10
@@ -31,7 +35,7 @@ GAME_MODE = 0 #0 pour PLACEMENT / 1 pour ATTAQUE
 IMGS_TAB = [] #Tableau des images
 
 shipPos = []
-shipLen = 1
+shipLengthPlayer = 1
 
 '''
 Event clic sur la grille du joueur
@@ -44,14 +48,14 @@ def xy_player_grid(event):
     global GAME_MODE
     
     if GAME_MODE == 0:
-        global shipPos, nbBoats, shipLen
+        global shipPos, nbBoats
         result = 0
         
         #On récupère la prochaine taille de bateau
         while nbBoats == 0:
-            shipLen += 1
+            shipLengthPlayer += 1
             try:
-                nbBoats = deepcopy(NUMBER_SHIPS_PER_LENGTH[shipLen])
+                nbBoats = deepcopy(NUMBER_SHIPS_PER_LENGTH[shipLengthPlayer])
             except:
                 GAME_MODE = 1 #Changement du mode de jeu en "Attaque"
                 
@@ -61,24 +65,17 @@ def xy_player_grid(event):
         shipPos.append(ceil(eventX/TAILLE_CASE_X)-1)
         shipPos.append(ceil(eventY/TAILLE_CASE_Y)-1)
         
-        #Si un bateau a une seule case, alors dès le début on place le bateau si possible
-        if shipLen == 1:
+        if shipLengthPlayer <= 5 or len(shipPos) == 4:
             
-            if placement(shipLeng,shipIdPlayer, 1) != -1:
+            if placement(shipLengthPlayer,shipIdPlayer, 1) != -1:
                 nbBoats -= 1
-        #L'utilisateur a cliqué 2 fois => On essaye de placer le bateau
-        elif len(shipPos)==4 and shipLen <= 5:
-            shipPos = []
-            
-            if placement(shipLen,shipIdPlayer, 1) != -1:
-                nbBoats -=1
 
         #Bateaux finis d'être placés => Changement du mode de jeu
-        if shipLen >= 5 and nbBoats == 0:
+        if shipLengthPlayer >= 5 and nbBoats == 0:
             computerGrid.bind("<Button-1>", xy_computer_grid) #Les coordonnées sont maintenant captées par xy_computer_grid(event)
             messagebox.showinfo("Bataille navale", "Vous avez terminé de placer vos bateaux. Vous pouvez commencer à jouer !")
             computerGrid.config(cursor = "target")
-            GAME_MODE = 2 #Changement du mode de jeu en "Attaque"
+            GAME_MODE = 1 #Changement du mode de jeu en "Attaque"
             #shipIdPlayer = 1
             #shipLen = 1
                 
@@ -100,9 +97,9 @@ def xy_computer_grid(event):
     y = caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2
     
     if (computerTab[caseX][caseY] > 0):
-        drawingComputer.create_image(x, y, image=IMGS_TAB[2])
+        computerGrid.create_image(x, y, image=IMGS_TAB[2])
     elif (computerTab[caseX][caseY] == 0):
-        drawingComputer.create_image(x, y, image=IMGS_TAB[1])
+        computerGrid.create_image(x, y, image=IMGS_TAB[1])
 
     return
 
@@ -123,7 +120,7 @@ def create_grids():
     
     #Titres
     cTitle = Label(window, text = "Grille de l'ordinateur")
-    pTitle = Label(window, text = "Grille du joueur")
+    pitle = Label(window, text = "Grille du joueur")
     cTitle.configure(font='Helvetica 18 bold')
     pTitle.configure(font='Helvetica 18 bold')
     
@@ -203,7 +200,7 @@ def placement(shipLength, shipId, instance):
         x = shipPos[0]
         y = shipPos[1]
 
-        if shipLen == 1:
+        if shipLength == 1:
             direction = -1
         else:
             x2 = shipPos[2]
