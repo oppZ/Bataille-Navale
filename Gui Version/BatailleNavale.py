@@ -106,6 +106,7 @@ TODO : DONE
 '''
 def xy_computer_grid(event):   
     #Tour du joueur
+    global SITUATION
     if SITUATION == 0:
         #Récupération des coordonnées de la souris dans la grille de l'orinateur  
         caseX = floor(event.x / TAILLE_CASE_X)
@@ -116,11 +117,11 @@ def xy_computer_grid(event):
         y = caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2
         
         if (computerCase > 0 and computerCase != 100):
-            computerGrid.create_image(x, y, image=IMGS_TAB[2]) #Affiche bateau
+            computerGrid.create_image(x, y, image=IMGS_TAB[3]) #Affiche bateau
             computerCase = -computerCase
             SITUATION = 1
             for case in computerTab:
-                if case > 0
+                if case > 0:
                     SITUATION = 0
                     break            
             
@@ -134,20 +135,22 @@ def xy_computer_grid(event):
     if SITUATION != 0:
         end_game(SITUATION)
     else:
+        print("Au tour de l'ordinateur")
         while True:
             #On récupère une case
             #Si case valide, on sort de la boucle
+            break
 
         #Calcul des coordonnées correspondant pour pouvoir afficher l'image centrée dans une case
         x = caseX * TAILLE_CASE_X + TAILLE_CASE_X /2
         y = caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2
         
-        if (playerGrid > 0 and playerCase != 100):
+        if (playerCase > 0 and playerCase != 100):
             playerGrid.create_image(x, y, image=IMGS_TAB[3]) #Affiche bateau
             playerCase = -playerCase
             SITUATION = 2
             for case in playerTab:
-                if case > 0
+                if case > 0:
                     SITUATION = 0
                     break            
             
@@ -312,7 +315,7 @@ def placement(shipLength, shipId, instance):
         xy = ship[case].split(" ")
         #Si le joueur place ses bateaux, alors on place l'image imageCaseShip
         if instance == 1:
-            playerGrid.create_image(int(xy[0])*TAILLE_CASE_X + TAILLE_CASE_X / 2, int(xy[1])*TAILLE_CASE_Y + TAILLE_CASE_Y / 2, image = IMGS_TAB[2])
+            playerGrid.create_image(int(xy[0])*TAILLE_CASE_X + TAILLE_CASE_X / 2, int(xy[1])*TAILLE_CASE_Y + TAILLE_CASE_Y / 2, image = IMGS_TAB[3])
         
         tab[int(xy[0])][int(xy[1])] = shipId
     return 0
