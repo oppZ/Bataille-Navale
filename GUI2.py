@@ -28,14 +28,20 @@ NUMBER_SHIPS_PER_LENGTH = {}
 MAX_SHIPS_PER_LENGTH = 8
 
 MODE = 0 #0 pour SOLO / 1 pour MULTI
+GAME_MODE #0 pour PLACEMENT / 1 pour ATTAQUE
 
 IMGS_TAB = [] #Tableau des images
 
-#g
 shipPos = []
 shipLen = 1
 
-#Event clic pour la grille du joueur
+'''
+Event clic sur la grille du joueur
+ARGS :
+ event (event clic)
+ 
+TODO : DONE
+'''
 def xy_player_grid(event):
     global GAME_MODE
     
@@ -43,16 +49,13 @@ def xy_player_grid(event):
         global shipPos, nbBoats, shipLen
         result = 0
         
-        '''
-        On récupère la prochaine taille du bateau dont le nombre attribué
-        n'est pas égal à 0
-        '''  
+        #On récupère la prochaine taille de bateau
         while nbBoats == 0:
             shipLen += 1
             try:
                 nbBoats = deepcopy(NUMBER_SHIPS_PER_LENGTH[shipLen])
             except:
-                GAME_MODE == 1 #Changement du mode de jeu en "Attaque"
+                GAME_MODE = 1 #Changement du mode de jeu en "Attaque"
                 
         #On récupère les positions x/y sur le canvas, puis on calcule la case correspondante
         eventX = event.x
@@ -65,20 +68,14 @@ def xy_player_grid(event):
             
             if placement(shipLeng,shipIdPlayer, 1) != -1:
                 nbBoats -= 1
-        '''
-        Si l'utilisateur a cliqué 2 fois, on essaye de placer
-        le bateau
-        '''
+        #L'utilisateur a cliqué 2 fois => On essaye de placer le bateau
         elif len(shipPos)==4 and shipLen <= 5:
             shipPos = []
             
             if placement(shipLen,shipIdPlayer, 1) != -1:
                 nbBoats -=1
 
-        '''
-        Si on a finit de placer les bateaux, on passe en mode
-        "Attaque"
-        '''
+        #Bateaux finis d'être placés => Changement du mode de jeu
         if shipLen >= 5 and nbBoats == 0:
             computerGrid.bind("<Button-1>", xy_computer_grid) #Les coordonnées sont maintenant captées par xy_computer_grid(event)
             messagebox.showinfo("Bataille navale", "Vous avez terminé de placer vos bateaux. Vous pouvez commencer à jouer !")
@@ -90,8 +87,30 @@ def xy_player_grid(event):
     return
 
 '''
-Création des grilles du joueur
-et de l'ordinateur
+Event clic sur la grille du joueur
+ARGS :
+ event (event clic)
+ 
+TODO : DONE
+'''
+def xy_computer_grid(event):
+    #Récupération des coordonnées de la souris dans la grille de l'orinateur  
+    caseX = floor(event.x / TAILLE_CASE_X)
+    caseY = floor(event.y / TAILLE_CASE_Y)
+    #Calcul des coordonnées correspondant pour pouvoir afficher l'image centrée dans une case
+    x = caseX * TAILLE_CASE_X + TAILLE_CASE_X /2
+    y = caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2
+    
+    if (computerTab[caseX][caseY] > 0):
+        drawingComputer.create_image(x, y, image=IMGS_TAB[2])
+    elif (computerTab[caseX][caseY] == 0):
+        drawingComputer.create_image(x, y, image=IMGS_TAB[1])
+
+    return
+
+'''
+Création des grilles du joueur et de l'ordinateur
+
 TODO : DONE
 '''
 def create_grids():
@@ -107,8 +126,6 @@ def create_grids():
     #Titres
     cTitle = Label(window, text = "Grille de l'ordinateur")
     pTitle = Label(window, text = "Grille du joueur")
-    
-    #Taille du titre
     cTitle.configure(font='Helvetica 18 bold')
     tTitle.configure(font='Helvetica 18 bold')
     
@@ -116,7 +133,7 @@ def create_grids():
     computerGrid = Canvas(window, bg = "white", width = SIZE_X, height = SIZE_Y)
     playerGrid = Canvas(window, bg = "white", width = SIZE_X, height = SIZE_Y)
 
-    gridToPlace = playerGrid.bind( "<Button-1>", xyPos)
+    gridToPlace = playerGrid.bind( "<Button-1>", xy_player_grid)
 
     #Positionnement des titres et des canvas
     computerGrid.grid(row = 1, column = 0, padx = 60, pady = 25)
@@ -152,17 +169,22 @@ def create_grids():
             caseX = TAILLE_CASE_X*x + TAILLE_CASE_X/2
             caseY = TAILLE_CASE_Y*y + TAILLE_CASE_Y/2
             
-            #Ajout d'images "case inconnue" sur la grille de l'ordinateur
+            #Ajout image "Inconnue" sur la grille de l'ordinateur
             computerGrid.create_image(caseX, caseY, image = IMGS_TAB[0])
-            #Ajout d'images "mer" sur la grille du joueur
+            #Ajout image "Mer" sur la grille du joueur
             playerGrid.create_image(caseX, caseY, image = IMGS_TAB[1])
     return
         
 '''
 Placement d'un bateau
-instance :
+ARGS :
+ shipLength (longueur du bateau)
+ shipId (id du bateau)
+ instance (instance) :
   0 : Ordinateur
   1 : Joueur 1
+
+TODO : 
 '''
 def placement(shipLength, shipId, instance):
     ship = []
@@ -179,13 +201,12 @@ def placement(shipLength, shipId, instance):
     else:
         #Joueur
         tab = player1Tab
-        print("Le joueur 1 remplit sa grille")
         #On récupère les coordonnées récupèrées par xy_player_placement(event)
         x = shipPos[0]
         y = shipPos[1]
 
         if shipLen == 1:
-            direction = 5
+            direction = -1
         else:
             x2 = shipPos[2]
             y2 = shipPos[3]
@@ -206,28 +227,27 @@ def placement(shipLength, shipId, instance):
 
     #Pour chaque case, on calcule les x y suivants en fonction de la direction
     for case in range(shipLength -1):
-        if direction == 1 and y > 0:
-            #HAUT
-            y = y - 1
-            ship.append(str(x) + " " + str(y))
+        if direction != -1:
+            if direction == 1 and y > 0:
+                #HAUT
+                y -= 1
+                ship.append(str(x) + " " + str(y))
 
-        elif direction == 2 and y < LINES - 1:
-            #BAS
-            y = y + 1
-            ship.append(str(x) + " " + str(y))
+            elif direction == 2 and y < LINES - 1:
+                #BAS
+                y += 1
+                ship.append(str(x) + " " + str(y))
 
-        elif direction == 3 and x > 0:
-            #GAUCHE
-            x = x - 1
-            ship.append(str(x) + " " + str(y))
+            elif direction == 3 and x > 0:
+                #GAUCHE
+                x -= 1
+                ship.append(str(x) + " " + str(y))
 
-        elif direction == 4 and x < COLUMNS -1:
-            #DROITE
-            x = x + 1
-        elif direction == 5:
-            print()
-        else:
-            return -1
+            elif direction == 4 and x < COLUMNS -1:
+                #DROITE
+                x += 1
+            else:
+                return -1
         
         #Test si la position existe
         try:
@@ -249,14 +269,15 @@ def placement(shipLength, shipId, instance):
 
 '''
 Création d'une nouvelle partie
+
+TODO : 
 '''
 def new_game():
     global LINES, COLUMNS, NUMBER_SHIPS_PER_LENGTH
     global player1Tab, computerTab #Tableaux des grilles du joueur et de l'ordinateur
     global TAILLE_CASE_X, TAILLE_CASE_Y, shipIdPlayer
     global nbBoats #Nombre de bateaux d'une taille donnée
-    global playerPlace #Le joueur place t-il ses bateaux ?
-    global GAME_MODE #Mode de jeu (0 : placement, 1 : attaque)
+    global GAME_MODE
     
     #Tableaux pour les grilles du joueur 1 et de l'ordinateur
     player1Tab = []
@@ -307,22 +328,10 @@ def new_game():
     create_grids()
 
 '''
-def jeu(event):
-    #Récupération des x y de la sourie dans la grille de l'orinateur  
-    caseX = floor(event.x / TAILLE_CASE_X)
-    caseY = floor(event.y / TAILLE_CASE_Y)
-    #Calcul des x y correspondant pour pouvoir afficher l'image centré dans une case
-    x = caseX * TAILLE_CASE_X + TAILLE_CASE_X /2
-    y = caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2
-    if (computerTab[caseX][caseY] > 0):
-        drawingComputer.create_image(x, y, image=imageCaseShip)
-    elif (computerTab[caseX][caseY] == 0):
-        drawingComputer.create_image(x, y, image=imageCaseMer)
-'''
-
-'''
 Application des paramètres
-TODO : -Prendre en compte la modification des tailles de bateaux
+
+TODO :
+ Prendre en compte la modification des tailles de bateaux
 '''
 def change_settings():
     global LINES, COLUMNS
@@ -331,8 +340,10 @@ def change_settings():
     
 '''
 Menu "Paramètres"
-TODO : -Changer les noms des variables
-       -Depop la fenêtre quand on clique sur confirmer
+
+TODO :
+ Changer les noms des variables
+ Depop la fenêtre quand on clique sur confirmer
 '''
 def settings():
     settings = Tk()
@@ -411,6 +422,7 @@ def settings():
 
 '''
 Menu "A propos"
+
 TODO : ALL
 '''
 def informations():
@@ -418,13 +430,15 @@ def informations():
 
 '''
 Confirmation lors du clic du boutton "Quitter"
+
 TODO : DONE
 '''
 def callback():
     if messagebox.askokcancel("Quit", "Voulez-vous vraiment quitter ?"):
         window.destroy()
 '''
-Menu principal
+Fonction principale (Menu principal)
+
 TODO : DONE
 '''
 def main_menu():
