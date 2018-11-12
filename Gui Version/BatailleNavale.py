@@ -35,6 +35,7 @@ IMGS_TAB = [] #Tableau des images
 
 shipPos = []
 shipLengthPlayer = 1
+positionsPossible = []
 
 '''
 Event clic sur la grille du joueur
@@ -104,59 +105,80 @@ ARGS :
  
 TODO : DONE
 '''
+
+
 def xy_computer_grid(event):   
     #Tour du joueur
-    global SITUATION
+    global SITUATION, computerTab, player1Tab, positionsPossible
     if SITUATION == 0:
         #Récupération des coordonnées de la souris dans la grille de l'orinateur  
         caseX = floor(event.x / TAILLE_CASE_X)
         caseY = floor(event.y / TAILLE_CASE_Y)
-        computerCase = computerTab[caseX][caseY]
         #Calcul des coordonnées correspondant pour pouvoir afficher l'image centrée dans une case
         x = caseX * TAILLE_CASE_X + TAILLE_CASE_X /2
         y = caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2
-        
-        if (computerCase > 0 and computerCase != 100):
+        #Si dans cette case il y a un bateau
+        if (computerTab[caseX][caseY] > 0 and computerTab[caseX][caseY] != 100):
             computerGrid.create_image(x, y, image=IMGS_TAB[3]) #Affiche bateau
-            computerCase = -computerCase
+            computerTab[caseX][caseY] = -computerTab[caseX][caseY]
+            print(computerTab[caseX][caseY])
             SITUATION = 1
-            for case in computerTab:
-                if case > 0:
-                    SITUATION = 0
-                    break            
+            for caseY in range(LINES):
+                for caseX in range(COLUMNS):
+                    if computerTab[caseX][caseY] > 0 and computerTab[caseX][caseY] != 100:
+                        SITUATION = 0
+                        break            
             
-        elif (computerCase == 0):
+        elif (computerTab[caseX][caseY] == 0):
             computerGrid.create_image(x, y, image=IMGS_TAB[1]) #Affiche la mer
-            computerCase = 100
+            #Valeur 100, est censé représenter une case mer qui a déjŕ été touché
+            computerTab[caseX][caseY] = 100
+            SITUATION = 0
         else:
             return #On sort si le joueur n'a pas cliqué sur une case valide
+
             
     #Tour de l'ordinateur
     if SITUATION != 0:
         end_game(SITUATION)
     else:
-        print("Au tour de l'ordinateur")
-        while True:
-            #On récupère une case
-            #Si case valide, on sort de la boucle
-            break
+        #Si l'ordinateur ne sait pas oů il peut y avoir des bateaux, alors il prend une case aléatoirement
+        if len(positionsPossible) == 0:
+            casePossible = False
+            while casePossible == False:
+                caseX = randint(0,9)
+                caseY = randint(0,9)
+                if (player1Tab[caseX][caseY] > 0 and player1Tab[caseX][caseY] == 100) or player1Tab[caseX][caseY] < 0:
+                    casePossible = False
+                else:
+                    casePossible = True
 
-        #Calcul des coordonnées correspondant pour pouvoir afficher l'image centrée dans une case
-        x = caseX * TAILLE_CASE_X + TAILLE_CASE_X /2
-        y = caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2
+        else:
+            #Si on a des positions possibles, alors on récupčre les cases du dernier élément
+            cases = positionsPossible[-1].split(" ")
+            caseX = cases[0]
+            caseY = cases[1]
+            del positionsPossible[-1]
         
-        if (playerCase > 0 and playerCase != 100):
-            playerGrid.create_image(x, y, image=IMGS_TAB[3]) #Affiche bateau
-            playerCase = -playerCase
+        #Calcul des coordonnées correspondant pour pouvoir afficher l'image centrée dans une case
+        x = caseX * TAILLE_CASE_X + TAILLE_CASE_X / 2
+        y = caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2
+
+        #Si supérieur ŕ 0 et différent de 100 (mer déjŕ touché), alors on affiche le bateau
+        if (player1Tab[caseX][caseY] > 0 and player1Tab[caseX][caseY] != 100):
+            playerGrid.create_image(x, y, image=IMGS_TAB[4]) #Affiche bateau détruit
+            player1Tab[caseX][caseY] = -player1Tab[caseX][caseY]
             SITUATION = 2
-            for case in playerTab:
-                if case > 0:
-                    SITUATION = 0
-                    break            
+            #Les
+            for caseY in range(LINES):
+                for caseX in range(COLUMNS):
+                    if player1Tab[caseX][caseY] > 0 and player1Tab[caseX][caseY] != 100:
+                        SITUATION = 0
+                        break
             
-        elif (playerCase == 0):
+        elif (player1Tab[caseX][caseY] == 0):
             playerGrid.create_image(x, y, image=IMGS_TAB[2]) #Affiche explosion
-            playerCase = 100      
+            player1Tab[caseX][caseY] = 100      
     return
 
 '''
