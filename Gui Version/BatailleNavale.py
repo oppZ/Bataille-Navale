@@ -8,11 +8,11 @@ import time
 
 NUMBER_DEFAULT_LINES = 10
 NUMBER_MIN_LINES = 5
-NUMBER_MAX_LINES = 16
+NUMBER_MAX_LINES = 10
 
 NUMBER_DEFAULT_COLUMNS = 10
 NUMBER_MIN_COLUMNS = 5
-NUMBER_MAX_COLUMNS = 16
+NUMBER_MAX_COLUMNS = 10
 
 #Taille en pixel de la grille
 SIZE_X = 460
@@ -105,17 +105,18 @@ ARGS :
  
 TODO : DONE
 '''
-
+suivant = []
 
 def xy_computer_grid(event):   
     #Tour du joueur
-    global SITUATION, computerTab, player1Tab, positionsPossible
+    global SITUATION, computerTab, player1Tab, positionsPossible, suivant
     if SITUATION == 0:
+        pre = False
         #Récupération des coordonnées de la souris dans la grille de l'orinateur  
         caseX = floor(event.x / TAILLE_CASE_X)
         caseY = floor(event.y / TAILLE_CASE_Y)
         #Calcul des coordonnées correspondant pour pouvoir afficher l'image centrée dans une case
-        x = caseX * TAILLE_CASE_X + TAILLE_CASE_X /2
+        x = caseX * TAILLE_CASE_X + TAILLE_CASE_X / 2
         y = caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2
         #Si dans cette case il y a un bateau
         if (computerTab[caseX][caseY] > 0 and computerTab[caseX][caseY] != 100):
@@ -137,11 +138,13 @@ def xy_computer_grid(event):
         else:
             return #On sort si le joueur n'a pas cliqué sur une case valide
 
-            
+    direction = 0
     #Tour de l'ordinateur
     if SITUATION != 0:
         end_game(SITUATION)
     else:
+        caseX = -1
+        caseY = -1
         #Si l'ordinateur ne sait pas oů il peut y avoir des bateaux, alors il prend une case aléatoirement
         if len(positionsPossible) == 0:
             casePossible = False
@@ -153,32 +156,72 @@ def xy_computer_grid(event):
                 else:
                     casePossible = True
 
-        else:
+        elif len(positionsPossible) > 0 and len(suivant) == 0:
             #Si on a des positions possibles, alors on récupčre les cases du dernier élément
             cases = positionsPossible[-1].split(" ")
-            caseX = cases[0]
-            caseY = cases[1]
+            caseX = int(cases[0])
+            caseY = int(cases[1])
+            direction = int(cases[2])
             del positionsPossible[-1]
-        
+            pre = True
+            
+        elif len(suivant)==1:
+            print("Suivant")
+            cases = suivant[0]
+            ca = cases.split(" ")
+            caseX = int(ca[0])
+            caseY = int(ca[1])
+            direction = int(ca[2])
+
         #Calcul des coordonnées correspondant pour pouvoir afficher l'image centrée dans une case
         x = caseX * TAILLE_CASE_X + TAILLE_CASE_X / 2
         y = caseY * TAILLE_CASE_Y + TAILLE_CASE_Y / 2
-
         #Si supérieur ŕ 0 et différent de 100 (mer déjŕ touché), alors on affiche le bateau
         if (player1Tab[caseX][caseY] > 0 and player1Tab[caseX][caseY] != 100):
             playerGrid.create_image(x, y, image=IMGS_TAB[4]) #Affiche bateau détruit
             player1Tab[caseX][caseY] = -player1Tab[caseX][caseY]
             SITUATION = 2
-            #Les
-            for caseY in range(LINES):
-                for caseX in range(COLUMNS):
-                    if player1Tab[caseX][caseY] > 0 and player1Tab[caseX][caseY] != 100:
+            #S'il n'y a pas de cases ŕ toucher en priorité
+            
+            
+            print("suivant", suivant)
+            if len(suivant)==0 and len(positionsPossible) == 0 and pre == False:
+                #Les possibilités aprčs
+                print("nouvelles def")
+                positionsPossible.append(str(caseX-1)+" "+str(caseY)+" 1")
+                positionsPossible.append(str(caseX+1)+" "+str(caseY)+" 2")
+                positionsPossible.append(str(caseX)+" "+str(caseY-1)+" 3")
+                positionsPossible.append(str(caseX)+" "+str(caseY+1)+" 4")
+
+            elif len(suivant) == 1 or len(suivant) == 0:
+                if len(suivant) == 1:
+                    del suivant[0]
+                direction = int(direction)
+                print("dir",direction)
+                if direction == 1:
+                    suivant.append(str(caseX-1)+" "+str(caseY)+" 1")
+                    print(suivant)
+                elif direction == 2:
+                    suivant.append(str(caseX+1)+" "+str(caseY)+" 2")
+                    print(suivant)
+                elif direction == 3:
+                    suivant.append(str(caseX)+" "+str(caseY-1)+" 3")
+                    print(suivant)
+                elif direction == 4:
+                    suivant.append(str(caseX)+" "+str(caseY+1)+" 4")
+                    print(suivant)
+
+            for casY in range(LINES):
+                for casX in range(COLUMNS):
+                    if player1Tab[casX][casY] > 0 and player1Tab[casX][casY] != 100:
                         SITUATION = 0
                         break
             
-        elif (player1Tab[caseX][caseY] == 0):
+        elif (player1Tab[caseX][caseY] == 0 or player1Tab[caseX][caseY] == 100):
             playerGrid.create_image(x, y, image=IMGS_TAB[2]) #Affiche explosion
-            player1Tab[caseX][caseY] = 100      
+            player1Tab[caseX][caseY] = 100
+            if len(suivant) == 1:
+                del suivant[0]
     return
 
 '''
@@ -353,9 +396,12 @@ def new_game():
     global alreadyCliqued #Tableau qui répertori les différentes cases où le joeur a déjà cliqué
     global TAILLE_CASE_X, TAILLE_CASE_Y, shipIdPlayer
     global nbBoats #Nombre de bateaux d'une taille donnée
-    global GAME_MODE, END_GAME
+    global GAME_MODE, SITUATION, positionsPossible, suivant
 
-    END_GAME = False
+    #Personne n'a gagné
+    SITUATION = 0
+    positionsPossible = []
+    suivant = []
     
     #Tableaux pour les grilles du joueur 1 et de l'ordinateur
     player1Tab = []
