@@ -1,0 +1,46 @@
+gagné = False
+perdu = False
+
+Tant que not(Gagné) or not(Perdu)
+	//TOUR DU JOUEUR
+	//Récupérer la case du clic
+	Tant que la case n’est pas une case « Unknow »
+		//Récupérer la case du clic
+	FinTantQue
+	
+	Si la case est un bateau
+		//On change le type de la case en « Destroyed Ship »
+		//On affiche une image « Destroyed Ship »
+		gagné = True
+		Pour length dans SHIPS_PER_LENGTH.values()
+			if (length != 0)
+				gagné = False
+				break	
+		FinPour
+	Sinon
+		//On change le type de la case en « Sea »
+		//On affiche une image « Sea »
+	FinSi
+
+	//TOUR DE L’ORDINATEUR
+	Si not(gagné)
+		Si lors du précédent choix, c’était une case vide
+			//On prend une case aléatoirement permis celles qui restent
+			Si la case est un bateau
+				//On change le type de la case en « Destroyed Ship »
+				//On affiche une image « Destroyed Ship »
+				//On se souvient de la case pour le prochain tir
+				//On regarde si le joueur a perdu (donc si l’ordi a gagné)
+			Sinon
+				//On change le type de la case en « Sea »
+				//On affiche une image « Sea »
+		Sinon
+			//On prend une case aléatoire parmi les 4 case à coté du tir 					précédent
+			Si la case est un bateau
+				//On change le type de la case en « Destroyed Ship »
+				//On affiche une image « Destroyed Ship »
+				//On se souvient de la case pour le prochain tir
+				//On regarde si le joueur a perdu (donc si l’ordi a gagné)
+			Sinon
+				//On change le type de la case en « Sea »
+				//On affiche une image « Sea »
