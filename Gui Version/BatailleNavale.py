@@ -397,6 +397,7 @@ def new_game():
 
     shipIdPlayer = 1
 
+
     #Paramètres non modifiés => On prend ceux par défaut
     if LINES == 0:
         LINES = deepcopy(NUMBER_DEFAULT_LINES)
@@ -470,7 +471,6 @@ def settings():
     colonesE = Spinbox(settings, from_=NUMBER_MIN_COLUMNS, to=NUMBER_MAX_COLUMNS, width=3)
     lignesE = Spinbox(settings, from_=NUMBER_MIN_LINES, to=NUMBER_MAX_LINES, width=3)
     #width, height
-
     taille = Label(settings, text='\nLe nombre de bateaux par taille\n')
     case1 = Label(settings, text='1 case(s) :')
     case2 = Label(settings, text='2 case(s) :')
@@ -527,30 +527,16 @@ def settings():
   
     settings.mainloop()
 
-'''
-Menu "A propos"
-
-TODO : ALL
-'''
 def informations():
     print()
 
-'''
-Confirmation lors du clic du boutton "Quitter"
 
-TODO : DONE
-'''
 def callback():
     if messagebox.askokcancel("Quit", "Voulez-vous vraiment quitter ?"):
         window.destroy()
-'''
-Fonction principale (Menu principal)
 
-TODO : DONE
-'''
 def main_menu():
     global window
-    
     window = Tk()
     window.title("Bataille Navale")
     window.geometry("1280x700")
@@ -574,6 +560,7 @@ def main_menu():
     menu2.add_command(label="Quitter", command=callback)
 
     window.config(menu=menu)
+
     window.protocol("WM_DELETE_WINDOW", callback) 
     window.mainloop()
 
